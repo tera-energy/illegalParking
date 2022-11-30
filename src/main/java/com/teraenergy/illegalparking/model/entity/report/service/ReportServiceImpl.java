@@ -96,12 +96,15 @@ public class ReportServiceImpl implements ReportService {
     public List<Report> getByGovernmentOffice(Integer reportSeq, LocalDateTime startDateTime, LocalDateTime endDateTime) {
         JPAQuery query = jpaQueryFactory.selectFrom(QReport.report);
         query.where(QReport.report.regDt.between(startDateTime, endDateTime));
+        query.where(QReport.report.isDel.isFalse());
         return query.fetch();
     }
 
     @Override
     public List<Report> gets() {
-        return reportRepository.findAll();
+        JPAQuery query = jpaQueryFactory.selectFrom(QReport.report);
+        query.where(QReport.report.isDel.isFalse());
+        return query.fetch();
     }
 
     @Override
@@ -109,6 +112,7 @@ public class ReportServiceImpl implements ReportService {
         JPAQuery query = jpaQueryFactory.selectFrom(QReport.report);
         query.where(QReport.report.receipt.carNum.eq(carNum));
         query.where(QReport.report.receipt.regDt.before(regDt));
+        query.where(QReport.report.isDel.isFalse());
         return query.fetch().size();
     }
 
@@ -156,6 +160,7 @@ public class ReportServiceImpl implements ReportService {
     public int getSizeForReport(List<IllegalZone> illegalZones) {
         JPAQuery query = jpaQueryFactory.selectFrom(QReport.report);
         query.where(QReport.report.receipt.illegalZone.in(illegalZones));
+        query.where(QReport.report.isDel.isFalse());
         return query.fetch().size();
     }
 
@@ -166,6 +171,7 @@ public class ReportServiceImpl implements ReportService {
         JPAQuery query = jpaQueryFactory.selectFrom(QReport.report);
         query.where(QReport.report.receipt.illegalZone.in(illegalZones));
         query.where(QReport.report.reportStateType.eq(ReportStateType.EXCEPTION));
+        query.where(QReport.report.isDel.isFalse());
         return query.fetch().size();
     }
 
@@ -175,6 +181,7 @@ public class ReportServiceImpl implements ReportService {
         JPAQuery query = jpaQueryFactory.selectFrom(QReport.report);
         query.where(QReport.report.receipt.illegalZone.in(illegalZones));
         query.where(QReport.report.reportStateType.eq(ReportStateType.PENALTY));
+        query.where(QReport.report.isDel.isFalse());
         return query.fetch().size();
     }
 
@@ -184,6 +191,7 @@ public class ReportServiceImpl implements ReportService {
         JPAQuery query = jpaQueryFactory.selectFrom(QReport.report);
         query.where(QReport.report.receipt.illegalZone.in(illegalZones));
         query.where(QReport.report.reportStateType.eq(ReportStateType.COMPLETE));
+        query.where(QReport.report.isDel.isFalse());
         return query.fetch().size();
     }
 
@@ -192,6 +200,7 @@ public class ReportServiceImpl implements ReportService {
         JPAQuery query = jpaQueryFactory.selectFrom(QReport.report);
         query.where(QReport.report.receipt.illegalZone.eq(illegalZone));
         query.where(QReport.report.reportStateType.eq(ReportStateType.PENALTY));
+        query.where(QReport.report.isDel.isFalse());
         return query.fetch().size();
     }
 
@@ -217,6 +226,7 @@ public class ReportServiceImpl implements ReportService {
         LocalDateTime endTime =  StringUtil.convertStringToDateTime( (yearStr + monthStr + lastDayStr +"2359"),  "yyyyMMddHHmm" );
         JPAQuery query = jpaQueryFactory.selectFrom(QReport.report);
         query.where(QReport.report.receipt.regDt.between(startTime, endTime));
+        query.where(QReport.report.isDel.isFalse());
         return query.fetch().size();
     }
 
