@@ -61,7 +61,7 @@ spring:
       connection-timeout: 58000 # connection_timeout
       max-lifetime: 1800000 # wait_timeout
       driver-class-name: net.sf.log4jdbc.sql.jdbcapi.DriverSpy
-      jdbc-url: jdbc:log4jdbc:mariadb://192.168.0.53:3306/illegal_parking?serverTimezone=Asia/Seoul
+      jdbc-url: jdbc:log4jdbc:mariadb://192.168.0.53:3306/illegal_parking_test?serverTimezone=Asia/Seoul
       username: root
       password: tera
       maximum-pool-size: 30
