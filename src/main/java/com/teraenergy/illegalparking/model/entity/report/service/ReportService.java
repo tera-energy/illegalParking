@@ -42,7 +42,7 @@ public interface ReportService {
 
     int getSizeForPenalty(IllegalZone illegalZone);
 
-    int getReportCountByMonth(int year, int month);
+    int getReportCountByMonth(int year, int month, List<IllegalZone> illegalZones);
 
 
 

@@ -1,6 +1,7 @@
 package com.teraenergy.illegalparking.model.entity.receipt.service;
 
 import com.teraenergy.illegalparking.model.entity.illegalEvent.enums.IllegalType;
+import com.teraenergy.illegalparking.model.entity.illegalzone.domain.IllegalZone;
 import com.teraenergy.illegalparking.model.entity.receipt.domain.Receipt;
 import com.teraenergy.illegalparking.model.entity.receipt.enums.ReceiptFilterColumn;
 import com.teraenergy.illegalparking.model.entity.receipt.enums.ReceiptStateType;
@@ -40,7 +41,7 @@ public interface ReceiptService {
 
     Page<Receipt> gets(int pageNumber, int pageSize, ReceiptStateType receiptStateType, ReceiptFilterColumn filterColumn, String search);
 
-    int getReceiptCountByMonth(int year, int month);
+    int getReceiptCountByMonth(int year, int month, List<IllegalZone> illegalZones);
 
     Receipt getByLastOccur(Integer userSeq, String carNum, LocalDateTime regDt, IllegalType illegalType);
 
