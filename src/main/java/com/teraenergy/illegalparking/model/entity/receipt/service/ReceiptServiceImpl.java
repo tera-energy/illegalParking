@@ -4,6 +4,7 @@ import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.querydsl.jpa.impl.JPAUpdateClause;
 import com.teraenergy.illegalparking.model.entity.illegalEvent.enums.IllegalType;
+import com.teraenergy.illegalparking.model.entity.illegalzone.domain.IllegalZone;
 import com.teraenergy.illegalparking.model.entity.receipt.domain.QReceipt;
 import com.teraenergy.illegalparking.model.entity.receipt.domain.Receipt;
 import com.teraenergy.illegalparking.model.entity.receipt.enums.ReceiptFilterColumn;
@@ -94,6 +95,8 @@ public class ReceiptServiceImpl implements ReceiptService {
                 break;
         }
 
+        query.where(QReceipt.receipt.isDel.isFalse());
+
         if (query.fetch().size() > 0) {
             return true;
         }
@@ -129,6 +132,7 @@ public class ReceiptServiceImpl implements ReceiptService {
         query.where(QReceipt.receipt.user.userSeq.eq(user));
         query.where(QReceipt.receipt.carNum.eq(carNum));
         query.where(QReceipt.receipt.regDt.before(regDt));
+        query.where(QReceipt.receipt.isDel.isFalse());
         return query.fetch().size();
     }
 
@@ -192,7 +196,7 @@ public class ReceiptServiceImpl implements ReceiptService {
 
     // 한달간의 처리 및 미처리 건수 가져오기
     @Override
-    public int getReceiptCountByMonth(int year, int month) {
+    public int getReceiptCountByMonth(int year, int month, List<IllegalZone> illegalZones) {
         int lastDay = getLastDay(year, month);
         String lastDayStr = String.valueOf(lastDay);
         String yearStr = String.valueOf(year);
@@ -204,8 +208,9 @@ public class ReceiptServiceImpl implements ReceiptService {
         LocalDateTime endTime =  StringUtil.convertStringToDateTime( (yearStr + monthStr + lastDayStr +"2359"),  "yyyyMMddHHmm" );
         JPAQuery query = jpaQueryFactory.selectFrom(QReceipt.receipt);
         query.where(QReceipt.receipt.regDt.between(startTime, endTime));
-        query.where(QReceipt.receipt.receiptStateType.ne(ReceiptStateType.NOTHING));
-        query.where(QReceipt.receipt.receiptStateType.ne(ReceiptStateType.FORGET));
+        query.where(QReceipt.receipt.receiptStateType.ne(ReceiptStateType.REPORT));
+        query.where(QReceipt.receipt.illegalZone.in(illegalZones));
+        query.where(QReceipt.receipt.isDel.isFalse());
         return query.fetch().size();
     }
 

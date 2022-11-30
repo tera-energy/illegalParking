@@ -2,12 +2,14 @@ package com.teraenergy.illegalparking.controller.home;
 
 import com.teraenergy.illegalparking.controller.ExtendsController;
 import com.teraenergy.illegalparking.exception.TeraException;
+import com.teraenergy.illegalparking.exception.enums.TeraExceptionCode;
 import com.teraenergy.illegalparking.model.entity.illegalGroup.service.IllegalGroupServcie;
 import com.teraenergy.illegalparking.model.entity.illegalzone.domain.IllegalZone;
 import com.teraenergy.illegalparking.model.entity.illegalzone.service.IllegalZoneService;
 import com.teraenergy.illegalparking.model.entity.receipt.service.ReceiptService;
 import com.teraenergy.illegalparking.model.entity.report.service.ReportService;
 import com.teraenergy.illegalparking.model.entity.user.domain.User;
+import com.teraenergy.illegalparking.model.entity.user.enums.Role;
 import com.teraenergy.illegalparking.model.entity.user.service.UserService;
 import com.teraenergy.illegalparking.model.entity.userGroup.domain.UserGroup;
 import com.teraenergy.illegalparking.model.entity.userGroup.service.UserGroupService;
@@ -75,40 +77,39 @@ public class HomeController extends ExtendsController {
 
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         User user = userService.get(auth.getName());
-        switch (user.getRole()) {
-            case ADMIN:
-                return "/";
-            case GOVERNMENT:
-            default:
-                List<UserGroup> userGroups = userGroupService.getsByUser(user.getUserSeq());
-                List<Integer> groupSeqs = userGroups.stream().map(userGroup -> userGroup.getGroupSeq()).collect(Collectors.toList());
-                List<IllegalZone> illegalZones = illegalZoneService.gets(groupSeqs);
 
-                int totalCount = reportService.getSizeForReport(illegalZones);
-                int completeCount = reportService.getSizeForCOMPLETE(illegalZones);
-                int exceptionCount = reportService.getSizeForException(illegalZones);
-                int penaltyCount = reportService.getSizeForPenalty(illegalZones);
-
-                List<Integer> reportCounts = Lists.newArrayList();
-                List<Integer> receiptCounts = Lists.newArrayList();
-
-                int year = LocalDateTime.now().getYear();
-                for (int i=1; i<=12; i++) {
-                    reportCounts.add(reportService.getReportCountByMonth(year, i));
-                    receiptCounts.add(receiptService.getReceiptCountByMonth(year, i));
-                }
-
-                model.addAttribute("officeName", user.getGovernMentOffice().getName());
-                model.addAttribute("totalCount", totalCount);// 년 전체 건수
-                model.addAttribute("sendPenaltyCount", (penaltyCount + exceptionCount ));// 기관에 전송한 건수
-                model.addAttribute("completeCount", completeCount); // 대기 건수
-                model.addAttribute("exceptionCount", exceptionCount); // 미처리 건수
-                model.addAttribute("penaltyCount", penaltyCount); // 처리 건수
-
-                model.addAttribute("reportCounts", reportCounts);
-                model.addAttribute("receiptCounts", receiptCounts);
-                return getPath("/home");
+        if (!user.getRole().equals(Role.GOVERNMENT)) {
+            throw new TeraException(TeraExceptionCode.UNKNOWN);
         }
+
+        List<UserGroup> userGroups = userGroupService.getsByUser(user.getUserSeq());
+        List<Integer> groupSeqs = userGroups.stream().map(userGroup -> userGroup.getGroupSeq()).collect(Collectors.toList());
+        List<IllegalZone> illegalZones = illegalZoneService.gets(groupSeqs);
+
+        int totalCount = reportService.getSizeForReport(illegalZones);              // 총 신고 건수
+        int completeCount = reportService.getSizeForCOMPLETE(illegalZones);         // 대기 건수
+        int exceptionCount = reportService.getSizeForException(illegalZones);       // 미 처리 건수
+        int penaltyCount = reportService.getSizeForPenalty(illegalZones);           // 처리 건수
+
+        List<Integer> reportCounts = Lists.newArrayList();
+        List<Integer> receiptCounts = Lists.newArrayList();
+
+        int year = LocalDateTime.now().getYear();
+        for (int i = 1; i <= 12; i++) {
+            reportCounts.add(reportService.getReportCountByMonth(year, i, illegalZones));
+            receiptCounts.add(receiptService.getReceiptCountByMonth(year, i, illegalZones));
+        }
+
+        model.addAttribute("officeName", user.getGovernMentOffice().getName());
+        model.addAttribute("totalCount", totalCount);// 년 전체 건수
+        model.addAttribute("sendPenaltyCount", (penaltyCount + exceptionCount));// 기관에 전송한 건수
+        model.addAttribute("completeCount", completeCount); // 대기 건수
+        model.addAttribute("exceptionCount", exceptionCount); // 미처리 건수
+        model.addAttribute("penaltyCount", penaltyCount); // 처리 건수
+
+        model.addAttribute("reportCounts", reportCounts);
+        model.addAttribute("receiptCounts", receiptCounts);
+        return getPath("/home");
     }
 
 }

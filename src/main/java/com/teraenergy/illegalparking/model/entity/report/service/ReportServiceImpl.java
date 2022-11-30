@@ -214,7 +214,7 @@ public class ReportServiceImpl implements ReportService {
 
     // 한달간의 신고 건수 가져오기
     @Override
-    public int getReportCountByMonth(int year, int month) {
+    public int getReportCountByMonth(int year, int month, List<IllegalZone> illegalZones) {
         int lastDay = getLastDay(year, month);
         String lastDayStr = String.valueOf(lastDay);
         String yearStr = String.valueOf(year);
@@ -226,6 +226,7 @@ public class ReportServiceImpl implements ReportService {
         LocalDateTime endTime =  StringUtil.convertStringToDateTime( (yearStr + monthStr + lastDayStr +"2359"),  "yyyyMMddHHmm" );
         JPAQuery query = jpaQueryFactory.selectFrom(QReport.report);
         query.where(QReport.report.receipt.regDt.between(startTime, endTime));
+        query.where(QReport.report.receipt.illegalZone.in(illegalZones));
         query.where(QReport.report.isDel.isFalse());
         return query.fetch().size();
     }
