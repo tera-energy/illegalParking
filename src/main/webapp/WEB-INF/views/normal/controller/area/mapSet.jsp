@@ -112,6 +112,9 @@
                             return false;
                         }
                     }
+
+					$.cancelDrawing();
+
                     if (this.value === '') {
                         $('#btnCancel').trigger('click');
                     } else {
@@ -193,11 +196,13 @@
                 		alert('구역을 지정하시기 바랍니다.');
                 		return false;
                 	} else {
-                		$.initBtnState();
-
                 		// 폴리곤 중심좌표를 구해서 법정동 코드 넣기
                 		for (const polygon of opt.data.polygon) {
                 			let points = polygon.points;
+                			if(points.length < 3) {
+                				alert('구역지정은 3개 이상의 좌표가 있어야합니다.')
+                				return;
+							};
                 			let centroidPoints = centroid(points);
                 			// polygon.code = await coordinatesToDongCodeKakaoApi(centroidPoints.x, centroidPoints.y);
                 			polygon.code = await coordinatesToDongCodeKakaoApi(centroidPoints.x, centroidPoints.y);
@@ -205,6 +210,7 @@
                 		// 데이터 저장
                 		let result = $.JJAjaxAsync(opt);
                 		if(result.success) {
+							$.initBtnState();
                 			// 지도에 가져온 데이터로 도형들을 그립니다
                 			await $.drawingZoneWithCodes();
                 			// 생성한 폴리곤 삭제

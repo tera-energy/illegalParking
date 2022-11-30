@@ -35,13 +35,11 @@ $(function () {
     }
 
     $.undoManager = function() {
-        if($.isModifyArea) {
-            if(manager.getOverlays().polygon.length > 0) {
-                manager.remove(manager.getOverlays().polygon[0]);
-            }
-            $.isDrawPolygonAfterEvent = false;
-            $.isModifyArea = false;
+        if(manager.getOverlays().polygon.length > 0) {
+            manager.remove(manager.getOverlays().polygon[0]);
         }
+        $.isDrawPolygonAfterEvent = false;
+        $.isModifyArea = false;
     }
 
 
@@ -241,14 +239,17 @@ $(function () {
             target: drawingMap,
             event: 'rightclick',
             func: function (mouseEvent) {
-                if ($.isModifyArea) {
-                    $.undoManager();
-                } else {
-                    // 그리기 중이면 그리기를 취소합니다
-                    $.cancelDrawing();
-                    $.removeOverlaysOfManager();
+                let searchIllegalType = $('input:radio[name=searchIllegalType]:checked').val();
+                if(searchIllegalType === '') {
+                    if ($.isModifyArea) {
+                        $.undoManager();
+                    } else {
+                        // 그리기 중이면 그리기를 취소합니다
+                        $.cancelDrawing();
+                        // $.removeOverlaysOfManager();
+                    }
+                    // $.initBtnState();
                 }
-                $.initBtnState();
             }
         });
 
@@ -257,13 +258,13 @@ $(function () {
             target: drawingMap,
             event: 'dblclick',
             func: function (mouseEvent) {
-                if(!$.isModifyArea) {
+                let searchIllegalType = $('input:radio[name=searchIllegalType]:checked').val();
+                if (searchIllegalType === '' && !$.isModifyArea) {
                     $('#btnAddOverlay').hide();
                     $('#btnModifyOverlay').hide();
                     $('#btnSet').show();
                     $('#btnModify').hide();
                     $('#btnCancel').show();
-                    $('#areaSettingModal').offcanvas('hide');
                     $.setOverlayType('POLYGON');
                 }
             }
@@ -274,10 +275,8 @@ $(function () {
             target: drawingMap,
             event: 'click',
             func: function (mouseEvent) {
-                $.SetMaxLevel($.LEVEL_TEN);
                 $('#areaSettingModal').offcanvas('hide');
-
-                if($.beforeClickPolygon) {
+                if ($.beforeClickPolygon) {
                     $.changeOptionStroke();
                 }
             }
