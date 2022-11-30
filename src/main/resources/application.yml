@@ -1,0 +1,156 @@
+spring:
+  mvc:
+    view:
+      prefix: /WEB-INF/views
+      suffix: .jsp
+  devtools:
+    livereload:
+      enabled: true
+  jpa:
+    show-sql: true
+    hibernate:
+      ddl-auto: none
+      naming:
+        physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+      use-new-id-generator-mappings: false
+  mobile:
+    devicedelegatingviewresolver:
+      enabled: true
+      normal-prefix: normal/
+      mobile-prefix: mobile/
+      tablet-prefix: mobile/
+logging:
+  config: classpath:log4j2.xml
+debug: false
+file:
+  templatePath: classpath:/templates/
+  staticPath: classpath:/static/
+  resourceUri: /fileUpload/**
+  excelPath: D:/fileUpload/excel/
+mybatis:
+  mapper-locations: classpath:/mybatis/*.xml
+hibernate:
+  metadata_builder_contributor=com:
+    vladmihalcea:
+      book:
+        hpjp:
+          SqlFunctionsMetadataBuilderContributor:#server:
+#server:
+#  ssl:
+#    key-store: classpath:teraenergy.p12
+#    key-store-type: PKCS12
+#    key-store-password: teraenergy
+#    key-alias: teraenergy
+addr-api:
+  key: devU01TX0FVVEgyMDIyMTEwODE0MDkxMTExMzE5OTA=
+---
+# debug
+spring:
+  config:
+    activate:
+      on-profile: debug
+  jpa:
+    database-platform: org.hibernate.dialect.MariaDB103Dialect
+  datasource:
+    driver-class-name: net.sf.log4jdbc.sql.jdbcapi.DriverSpy
+    url: jdbc:log4jdbc:mariadb://192.168.0.53:3306/illegal_parking_test?serverTimezone=Asia/Seoul
+    #    url: jdbc:mariadb://192.168.0.53:3306/illegal_parking?serverTimezone=Asia/Seoul
+    username: root
+    password: tera
+    hikari:
+      connection-timeout: 58000 # connection_timeout
+      max-lifetime: 1800000 # wait_timeout
+      driver-class-name: net.sf.log4jdbc.sql.jdbcapi.DriverSpy
+      jdbc-url: jdbc:log4jdbc:mariadb://192.168.0.53:3306/illegal_parking?serverTimezone=Asia/Seoul
+      username: root
+      password: tera
+      maximum-pool-size: 30
+server:
+  port: 8090
+  servlet:
+    context-path: /
+    session:
+      timeout: 300m
+file:
+  resourcePath: C:/fileUpload/
+---
+# home
+spring:
+  config:
+    activate:
+      on-profile: home
+  jpa:
+    database-platform: org.hibernate.dialect.MariaDB103Dialect
+  datasource:
+    url: jdbc:mariadb://localhost:3306/illegal_parking?serverTimezone=Asia/Seoul
+    username: wooyoung
+    password: rudnf12dnjf
+    hikari:
+      connection-timeout: 9000 # connection_timeout
+      max-lifetime: 1800000 # wait_timeout
+      jdbc-url: jdbc:mariadb://localhost:3306/illegal_parking?serverTimezone=Asia/Seoul
+      username: wooyoung
+      password: rudnf12dnjf
+      maximum-pool-size: 30
+server:
+  port: 8090
+  servlet:
+    context-path: /
+    session:
+      timeout: 300m
+file:
+  resourcePath: D:/fileUpload/
+---
+# release-DATA
+spring:
+  config:
+    activate:
+      on-profile: rdata
+  jpa:
+    database-platform: org.hibernate.dialect.MariaDB103Dialect
+  datasource:
+    url: jdbc:mariadb://49.50.166.205:3306/illegal_parking?serverTimezone=Asia/Seoul
+    username: tera
+    password: tera1234!
+    hikari:
+      jdbc-url: jdbc:mariadb://49.50.166.205:3306/illegal_parking?serverTimezone=Asia/Seoul
+      username: tera
+      password: tera1234!
+      connection-timeout: 30000 # connection_timeout
+      max-lifetime: 1800000 # wait_timeout
+server:
+  port: 80
+  servlet:
+    context-path: /
+    session:
+      timeout: 30m
+file:
+  resourcePath: /fileUpload/
+---
+# release
+spring:
+  config:
+    activate:
+      on-profile: release
+  jpa:
+    database-platform: org.hibernate.dialect.MariaDB103Dialect
+  datasource:
+    url: jdbc:mariadb://192.168.0.53:3306/illegal_parking?serverTimezone=Asia/Seoul
+    username: root
+    password: tera
+    hikari:
+      jdbc-url: jdbc:mariadb://192.168.0.53:3306/illegal_parking?serverTimezone=Asia/Seoul
+      username: root
+      password: tera
+      connection-timeout: 29000 # connection_timeout
+      max-lifetime: 2800000 # wait_timeout
+server:
+  port: 80
+  servlet:
+    context-path: /
+    session:
+      timeout: 30m
+file:
+  resourcePath: /fileUpload/
+logging:
+  config: classpath:log4j2_real.xml

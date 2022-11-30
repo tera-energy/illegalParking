@@ -1,0 +1,54 @@
+@font-face{
+    font-family: 'KoPubWorld Dotum Medium';
+    src: url('../webapp/resources/font/KoPubWorld Dotum Medium.ttf');
+
+    font-family: 'KoPubWorld Batang Light';
+    src: url('../webapp/resources/font/KoPubWorld Batang Light.ttf');
+}
+
+.box {
+    -ms-overflow-style: none; /* IE and Edge */
+    scrollbar-width: none; /* Firefox */
+}
+
+.box::-webkit-scrollbar {
+    display: none; /* Chrome, Safari, Opera*/
+}
+
+.main_image{
+    width: 100% !important;
+    height: 550px;
+    background-image: url('/resources/assets/img/main_image.png');
+    background-color: black;
+    background-size: 100% 100%;
+}
+
+.main_text{
+    margin-left:13%;
+    position:absolute;
+    top:27%;
+    text-align: right;
+}
+
+.info_area{
+    margin-top: 5%;
+    padding: 0 15%;
+    margin-bottom :3%;
+}
+
+.chart_title{
+    font-weight:bold;
+}
+
+.data_info{
+    text-align: center;
+    width: 15%;
+    position:absolute;
+    bottom:26%;
+    left: 22.5%;
+}
+
+/*.explain{*/
+/*    font-size:0.8rem;*/
+/*    color: gray;*/
+/*}*/

@@ -1,0 +1,21 @@
+{
+  "receiptSeq": 15,
+  "name": "홍길동",
+  "carNum": "64구7673",
+  "overlapCount": 1,
+  "regDt": "2022-10-21T14:51:00",
+  "addr": "전라남도 나주시 빛가람동 279-5",
+  "receiptStateType": "FORGET",
+  "firstFileName": "20221021145134.jpg",
+  "firstRegDt": "2022-10-21T14:51:00",
+  "firstAddr": "전라남도 나주시 빛가람동 279-5",
+  "firstIllegalType": "ILLEGAL",
+  "secondFileName": null,
+  "secondRegDt": null,
+  "secondAddr": null,
+  "secondIllegalType": null,
+  "comments": [
+    "추가 신고가 없어 종료가 되었습니다."
+  ],
+  "governmentOfficeName": null
+}

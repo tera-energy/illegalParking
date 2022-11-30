@@ -1,0 +1,138 @@
+configurations {
+    all {
+        // springboot 자체 logging 프로임워크 제외
+        exclude group: 'org.springframework.boot', module: 'spring-boot-starter-logging'
+    }
+    compileOnly {
+        extendsFrom annotationProcessor
+    }
+}
+
+ext['spring-security.version'] = '5.6.2'
+
+dependencies {
+
+    // jsp ( add jstl and stripes )
+    implementation 'org.apache.tomcat.embed:tomcat-embed-jasper'
+    implementation 'javax.servlet:jstl'
+    implementation 'net.sourceforge.stripes:stripes:1.5.8'
+
+    // jackson
+    implementation 'com.fasterxml.jackson.core:jackson-databind'
+    implementation 'com.fasterxml.jackson.datatype:jackson-datatype-hibernate5:2.13.2'  // Hibernate5Module Class to convert of JsonNode
+
+    // Excel
+    implementation 'org.apache.poi:poi:5.2.2'
+    implementation 'org.apache.poi:poi-ooxml:5.2.2'
+
+    // jxls for Excel Control
+    implementation 'org.jxls:jxls-poi:2.11.0'
+    implementation 'org.jxls:jxls-jexcel:1.0.9'
+    implementation 'org.jxls:jxls:2.11.0'
+
+    // log4js (logging 프레임워크)
+    implementation 'org.springframework.boot:spring-boot-starter-log4j2'
+
+    // development tools
+    developmentOnly 'org.springframework.boot:spring-boot-devtools'
+
+    // guava
+    implementation group: 'com.google.guava', name: 'guava', version: '11.0.2'
+
+    // lombok
+    compileOnly 'org.projectlombok:lombok'
+
+    // commons-lang3  ( StringUtils 등 )
+    implementation group: 'org.apache.commons', name: 'commons-lang3', version: '3.12.0'
+
+    // test
+    testImplementation 'junit:junit:4.12'
+
+
+    /* annotationProcessor */
+    annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
+    annotationProcessor 'org.projectlombok:lombok'
+
+    if (dependenceOnMobile != null && dependenceOnMobile) {
+        implementation 'org.springframework.mobile:spring-mobile-device:1.1.5.RELEASE'
+    }
+
+    // batch
+    if (dependenceOnBatch != null && dependenceOnBatch) {
+        implementation 'org.springframework.boot:spring-boot-starter-batch'
+    }
+
+    // quartz
+    if (dependenceOnQuartz != null && dependenceOnQuartz) {
+        implementation 'org.springframework.boot:spring-boot-starter-quartz'
+    }
+
+    // security
+    if (dependenceOnSecurity != null && dependenceOnSecurity) {
+        logger.quiet 'apply as spring-boot-starter-security ... '
+        implementation "org.springframework.boot:spring-boot-starter-security"
+    }
+
+    // aop
+    if (dependenceOnAop != null && dependenceOnAop) {
+        logger.quiet 'apply as spring-boot-starter-aop ... '
+        implementation "org.springframework.boot:spring-boot-starter-aop"
+    }
+
+    // jwt
+    if (dependenceOnJwt != null && dependenceOnJwt) {
+        logger.quiet 'apply as jjwt (ver 0.9.1) ... '
+        implementation group: 'io.jsonwebtoken', name: 'jjwt', version: '0.9.1'
+        implementation group: 'org.apache.httpcomponents', name: 'httpclient', version: '4.5.13'
+    }
+
+    // RDBMS
+    if (dependenceOnRDBMS != null && dependenceOnRDBMS) {
+        logger.quiet 'apply as spring-boot-starter-data-jpa ... '
+
+        // jpa
+        implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+
+        // queryDSL
+        if (dependenceOnQUERYDSL != null && dependenceOnQUERYDSL) {
+            logger.quiet 'apply as querydsl-jpa ... '
+            implementation 'com.querydsl:querydsl-jpa'
+
+            // queryDSL annotationProcessor
+            annotationProcessor 'javax.persistence:javax.persistence-api' // java.lang.NoClassDefFoundError(javax.annotation.Entity) 발생 대응
+            annotationProcessor 'javax.annotation:javax.annotation-api'  // java.lang.NoClassDefFoundError(javax.annotation.Generated) 발생 대응
+            annotationProcessor "com.querydsl:querydsl-apt:${dependencyManagement.importedProperties['querydsl.version']}:jpa" // Querydsl JPAAnnotationProcessor 사용 지정
+        }
+
+        // mybatis
+        if (dependenceOnMYBATIS != null && dependenceOnMYBATIS) {
+            logger.quiet 'apply as mybatis-spring-boot-starter (ver 2.2.2) ... '
+            implementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter:2.2.0'
+            implementation 'org.bgee.log4jdbc-log4j2:log4jdbc-log4j2-jdbc4.1:1.16'
+        }
+
+        // gemometry control
+        implementation group: 'org.locationtech.jts', name: 'jts-core', version: '1.19.0'
+
+        // java jdbc driver
+        switch (typeOfRDMBS) {
+            case RDMBS.MSSQL:
+                logger.quiet "apply as mssql ... "
+                runtimeOnly 'com.microsoft.sqlserver:mssql-jdbc'
+                break
+            case RDMBS.MYSQL:
+                logger.quiet "apply as mysql ... "
+                runtimeOnly 'mysql:mysql-connector-java:8.0.29'
+                break
+            case RDMBS.MARIADB:
+                logger.quiet "apply as mariadb ... "
+                runtimeOnly 'org.mariadb.jdbc:mariadb-java-client:3.0.7'
+                break
+            case RDMBS.ORACLE:
+                logger.quiet "apply as oracle ... "
+                break
+
+        }
+    }
+
+}

@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="INFO">
+
+    <Properties>
+        <Property name="PROFILE">home</Property>
+        <Property name="LOG_PACKAGE_USER">com.young</Property>
+        <Property name="LOG_PACKAGE_SPRINGBOOT">org.springframework</Property>
+        <Property name="LOG_DIR">/home/logs/illegalparking/log</Property>
+        <Property name="LOG_NAME">log4j2</Property>
+        <Property name="LOG_PATTERN">%d{hh:mm:ss} %-5level [%thread] %logger : %msg%n</Property>
+    </Properties>
+
+    <Appenders>
+        <!--
+            name : tag 를 정의하는 이름
+            target : INFO, DEBUG, WARN, ERROR
+            fileName : 저장할 파일의 이름 (경로 와 이름 )
+            filePattern : 저장할 파일의 이름 ( rolling file 의 경우 policies 에 따른 파일 이름 패턴 정의 )
+            interval : filePattern 에 따라 시간이 1분, 1시간, 1일 단위 지정됨
+            fileIndex : 로그 파일이 저장되는 갯수의 최대 또는 최소를 지정 ( max or min)
+            max : 로크 파일 생성 최대 개수 지정 (기본 값은 7 - 7 초과 설정 불가)
+            min : 로크 파일 생성 최대 개수 지정 (기본 값은 1 - 1 미만 설정 불가)
+        -->
+
+        <Console name="console" target="SYSTEM_OUT">
+            <PatternLayout pattern="${LOG_PATTERN}"/>
+        </Console>
+
+        <RollingFile name="file" fileName="${LOG_DIR}/${LOG_NAME}.log" filePattern="${LOG_DIR}/${LOG_NAME}_%d{yyyy-MM-dd-hh}.log">
+            <PatternLayout pattern="${LOG_PATTERN}"/>
+            <Policies>
+                <!-- 시간별 로그 파일 생성-->
+                <TimeBasedTriggeringPolicy modulate="true" interval="1"/>
+                <!-- 크기 로그 파일 생성-->
+                <SizeBasedTriggeringPolicy size="50MB"/>
+            </Policies>
+            <!-- 롤링 파일 5개 까지 생성 -->
+            <DefaultRolloverStrategy max="5" fileIndex="min"/>
+        </RollingFile>
+
+    </Appenders>
+
+    <Loggers>
+
+        <!--
+            level : INFO, DEBUG, WARN, ERROR
+            additivity :
+            name : 로그 정보를 만들 패키지 이름
+        -->
+        <!-- Root Logger -->
+        <Root level="INFO" additivity="false">
+            <AppenderRef ref="console"/>
+            <AppenderRef ref="file"/>
+        </Root>
+
+        <!-- 스프링 프레임워크에서 찍는건 level을 info로 설정 -->
+        <Logger name="${LOG_PACKAGE_SPRINGBOOT}" additivity="false">
+            <AppenderRef ref="console"/>
+            <AppenderRef ref="file" level="INFO"/>
+            <AppenderRef ref="errorFile" level="ERROR"/>
+        </Logger>
+
+        <!-- rolling file에는 debug, console에는 info 분리하여 처리 가능하다. -->
+        <Logger name="${LOG_PACKAGE_USER}" additivity="false">
+            <AppenderRef ref="console"/>
+            <AppenderRef ref="file" level="INFO"/>
+        </Logger>
+
+    </Loggers>
+</Configuration>

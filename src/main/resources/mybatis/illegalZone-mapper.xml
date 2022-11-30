@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.teraenergy.illegalparking.model.mapper.IllegalZoneMapper">
+
+    <select id="findByLatitudeAndLongitude" resultType="IllegalZone">
+        SELECT ZoneSeq, ASTEXT(Polygon) as polygon, isDel, Code, EventSeq from illegal_zone where code = ${code} and st_within(Point(${longitude}, ${latitude}), polygon) ;
+    </select>
+
+    <select id="findById" resultType="IllegalZone">
+        SELECT ZoneSeq, ASTEXT(Polygon) as polygon, isDel, Code, EventSeq FROM illegal_zone where ZoneSeq = #{zoneSeq} and isDel = 0;
+    </select>
+
+    <select id="findByCode" resultType="IllegalZone">
+        SELECT ZoneSeq, ASTEXT(Polygon) as polygon, isDel, Code, EventSeq FROM illegal_zone
+        WHERE Code IN
+        <foreach collection="codes" item="code" separator="," open="(" close=")">
+              #{code}
+        </foreach>
+        <if test="isSetting == false">
+            AND EventSeq IS NOT NULL
+        </if>
+          AND isDel = 0;
+    </select>
+
+    <select id="findByIllegalType" resultType="IllegalZone">
+        SELECT zone.ZoneSeq, ASTEXT(zone.Polygon) as polygon, zone.isDel, zone.Code, zone.EventSeq FROM illegal_zone zone join illegal_event event on zone.EventSeq = event.EventSeq where event.illegalType = #{illegalType} and zone.isDel = 0;
+    </select>
+
+    <select id="findByIllegalTypeAndCode" resultType="IllegalZone">
+        SELECT zone.ZoneSeq, ASTEXT(zone.Polygon) as polygon, zone.isDel, zone.Code, zone.EventSeq FROM illegal_zone zone join illegal_event event on zone.EventSeq = event.EventSeq
+        WHERE event.illegalType = #{illegalType} AND zone.Code IN
+        <foreach collection="codes" item="code" separator="," open="(" close=")">
+            #{code}
+        </foreach>
+        <if test="isSetting == false">
+            AND zone.EventSeq IS NOT NULL
+        </if>
+          AND zone.isDel = 0;
+    </select>
+
+    <select id="findAll" resultType="IllegalZone">
+        SELECT ZoneSeq, ASTEXT(Polygon) as polygon, isDel, Code, EventSeq FROM illegal_zone where isDel = 0;
+    </select>
+
+    <select id="findAllByLimitAndDesc" resultType="IllegalZone">
+        SELECT ZoneSeq, ASTEXT(Polygon) as polygon, isDel, Code, EventSeq FROM illegal_zone where isDel = 0 order by ZoneSeq desc limit #{limit};
+    </select>
+
+    <select id="findByGeometry" resultType="IllegalZone" parameterType="String">
+        SELECT zone.ZoneSeq, ASTEXT(zone.Polygon) as polygon, zone.isDel, zone.Code, zone.EventSeq FROM illegal_zone zone WHERE ST_CONTAINS( Polygon, GeomFromText(<trim prefix="'Point(" suffix=")'">${latitude} ${longitude}</trim>));
+    </select>
+
+    <insert id="save" useGeneratedKeys="false">
+         INSERT INTO illegal_zone (Polygon, isDel, Code, EventSeq) VALUES (POLYGONFROMTEXT(#{polygon}), #{isDel}, #{code}, #{illegalEvent.eventSeq});
+    </insert>
+
+    <insert id="saveAll" useGeneratedKeys="false">
+         INSERT INTO illegal_zone (Polygon, isDel, Code, EventSeq) VALUES
+        <foreach collection="illegalZones" item="illegalZone" separator=",">
+            (POLYGONFROMTEXT(#{illegalZone.polygon}), #{illegalZone.isDel}, #{illegalZone.code}, #{illegalZone.illegalEvent.eventSeq})
+        </foreach>
+        ;
+    </insert>
+
+    <update id="modify" useGeneratedKeys="false">
+         UPDATE illegal_zone SET Polygon = POLYGONFROMTEXT(#{polygon}), Code= #{code} WHERE ZoneSeq = #{zoneSeq};
+    </update>
+
+    <update id="modifyByEvent" useGeneratedKeys="false">
+         UPDATE illegal_zone SET EventSeq = #{eventSeq} WHERE ZoneSeq = #{zoneSeq};
+    </update>
+
+    <update id="delete" useGeneratedKeys="false">
+         UPDATE illegal_zone SET isDel = true WHERE ZoneSeq = #{zoneSeq};
+    </update>
+
+
+
+</mapper>

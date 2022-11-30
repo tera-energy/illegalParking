@@ -1,0 +1,71 @@
+#login_body{
+    background-color: #212428;
+}
+
+.container_login{
+    margin-top: 7%;
+    width: 70%;
+}
+
+.phone_num{
+    font-size:0.8rem;
+    position:absolute;
+    bottom: 3%;
+    right: 3%;
+}
+
+.btn-dark-login{
+    border-color: white;
+    border-radius: 20px;
+    width: 100%;
+}
+
+.login_logo{
+    margin-bottom:10%;
+}
+
+.logo{
+    width:30%;
+    margin: auto;
+}
+
+.input_labels{
+    font-size:1rem;
+    color:white;
+}
+
+.input_box{
+    background-color: transparent;
+    border-color: transparent;
+    width: 100%;
+    height: 150%;
+    color:white;
+}
+
+input::placeholder{
+    font-size:0.8rem;
+}
+
+.input_box:focus{
+    background-color: transparent !important;
+    border-color: transparent;
+    outline: none;
+}
+
+input:-webkit-autofill {
+    -webkit-box-shadow: 0 0 0 30px transparent inset ;
+    -webkit-text-fill-color: #ffffff;
+}
+input:-webkit-autofill, input:-webkit-autofill:hover, input:-webkit-autofill:focus, input:-webkit-autofill:active {
+    transition: background-color 5000s ease-in-out 0s;
+}
+
+.check_id{
+    color:white;
+    font-size:0.8rem;
+}
+
+.devider{
+    margin-top: 5px;
+    border: solid 1px white;
+}

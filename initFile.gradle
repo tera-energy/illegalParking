@@ -1,0 +1,344 @@
+// web 및 java source 디렉토리 생성
+task initFile(dependsOn: ['createYML', 'createLog4j'], description: " create directory for web and java source !! & create property file ( appliction.yml & log4j2.xml) ") {
+
+    doLast {
+
+        // web 디렉토리 생성
+        String webInf = "/WEB-INF"
+        String tags = webInf + "/tags"
+        String views = webInf + "/views"
+
+        String controller = views + "/controller"
+        String layout = views + "/layout"
+        String reference = views + "/reference"
+
+        String home = controller + "/home"
+        String error = controller + "/error"
+
+        String resources = "/resources"
+        String js = resources + "/js"
+        String css = resources + "/css"
+        String assets = resources + "/assets"
+
+        [
+                webAppDir, new File(webAppDir, webInf), new File(webAppDir, views), new File(webAppDir, tags),
+                new File(webAppDir, controller), new File(webAppDir, layout), new File(webAppDir, reference),
+                new File(webAppDir, home), new File(webAppDir, error),
+                new File(webAppDir, resources), new File(webAppDir, js), new File(webAppDir, css), new File(webAppDir, assets)
+        ].each {
+            if (!it.exists()) {
+                it.mkdirs()
+            }
+        }
+
+        // java source 디렉토리 생성
+        sourceSets.main.java.srcDirs.each {
+            String rootDir = it.toString().replace('[', '').replace(']', '')
+            String packageDir = this.group.toString().replace('.', '\\')
+            String javaDir = rootDir + '\\' + packageDir + '\\' + this.name.toString().replace('-', '')
+
+            [
+                    new File(javaDir, '/aop'), new File(javaDir, '/controller'), new File(javaDir, '/encrypt'), new File(javaDir, '/exception'),
+                    new File(javaDir, '/interceptor'), new File(javaDir, '/model'), new File(javaDir, '/scheduler'), new File(javaDir, '/security'),
+                    new File(javaDir, '/model/dto'), new File(javaDir, '/model/entity'), new File(javaDir, '/model/mapper')
+            ].each {
+                if (!it.exists()) it.mkdirs()
+            }
+        }
+    }
+}
+
+// log4j.xml 파일 생성
+task createLog4j {
+    doLast {
+        String content = '<?xml version="1.0" encoding="UTF-8"?>\n' +
+                '<Configuration status="INFO">\n' +
+                '\n' +
+                '    <Properties>\n' +
+                '        <Property name="PROFILE">home</Property>\n' +
+                '        <Property name="LOG_PACKAGE_USER">com.young</Property>\n' +
+                '        <Property name="LOG_PACKAGE_SPRINGBOOT">org.springframework</Property>\n' +
+                '        <Property name="LOG_DIR">.log</Property>\n' +
+                '        <Property name="LOG_NAME">log4j2</Property>\n' +
+                '        <Property name="LOG_PATTERN">%d{hh:mm:ss} %-5level [%thread] %logger : %msg%n</Property>\n' +
+                '    </Properties>\n' +
+                '\n' +
+                '    <Appenders>\n' +
+                '        <!--\n' +
+                '            name : tag 를 정의하는 이름\n' +
+                '            target : INFO, DEBUG, WARN, ERROR\n' +
+                '            fileName : 저장할 파일의 이름 (경로 와 이름 )\n' +
+                '            filePattern : 저장할 파일의 이름 ( rolling file 의 경우 policies 에 따른 파일 이름 패턴 정의 )\n' +
+                '            interval : filePattern 에 따라 시간이 1분, 1시간, 1일 단위 지정됨\n' +
+                '            fileIndex : 로그 파일이 저장되는 갯수의 최대 또는 최소를 지정 ( max or min)\n' +
+                '            max : 로크 파일 생성 최대 개수 지정 (기본 값은 7 - 7 초과 설정 불가)\n' +
+                '            min : 로크 파일 생성 최대 개수 지정 (기본 값은 1 - 1 미만 설정 불가)\n' +
+                '        -->\n' +
+                '\n' +
+                '        <Console name="console" target="SYSTEM_OUT">\n' +
+                '            <PatternLayout pattern="${LOG_PATTERN}"/>\n' +
+                '        </Console>\n' +
+                '\n' +
+                '        <RollingFile name="file" fileName="${LOG_DIR}/${LOG_NAME}.log" filePattern="${LOG_DIR}/${LOG_NAME}_%d{yyyy-MM-dd-hh}.log">\n' +
+                '            <PatternLayout pattern="${LOG_PATTERN}"/>\n' +
+                '            <Policies>\n' +
+                '                <!-- 시간별 로그 파일 생성-->\n' +
+                '                <TimeBasedTriggeringPolicy modulate="true" interval="1"/>\n' +
+                '                <!-- 크기 로그 파일 생성-->\n' +
+                '                <SizeBasedTriggeringPolicy size="50MB" />\n' +
+                '            </Policies>\n' +
+                '            <!-- 롤링 파일 5개 까지 생성 -->\n' +
+                '            <DefaultRolloverStrategy max="5" fileIndex="min"/>\n' +
+                '        </RollingFile>\n' +
+                '\n' +
+                '    </Appenders>\n' +
+                '\n' +
+                '    <Loggers>\n' +
+                '\n' +
+                '        <!--\n' +
+                '            level : INFO, DEBUG, WARN, ERROR\n' +
+                '            additivity :\n' +
+                '            name : 로그 정보를 만들 패키지 이름\n' +
+                '        -->\n' +
+                '        <!-- Root Logger -->\n' +
+                '        <Root level="INFO" additivity="false">\n' +
+                '            <AppenderRef ref="console"/>\n' +
+                '            <AppenderRef ref="file"/>\n' +
+                '        </Root>\n' +
+                '\n' +
+                '        <!-- 스프링 프레임워크에서 찍는건 level을 info로 설정 -->\n' +
+                '        <Logger name="${LOG_PACKAGE_SPRINGBOOT}" additivity="false">\n' +
+                '            <AppenderRef ref="console"/>\n' +
+                '            <AppenderRef ref="file" level="INFO"/>\n' +
+                '            <AppenderRef ref="errorFile" level="ERROR"/>\n' +
+                '        </Logger>\n' +
+                '\n' +
+                '        <!-- rolling file에는 debug, console에는 info 분리하여 처리 가능하다. -->\n' +
+                '        <Logger name="${LOG_PACKAGE_USER}" additivity="false">\n' +
+                '            <AppenderRef ref="console"/>\n' +
+                '            <AppenderRef ref="file" level="INFO"/>\n' +
+                '        </Logger>\n' +
+                '\n' +
+                '    </Loggers>\n' +
+                '</Configuration>';
+
+        sourceSets.main.java.srcDirs.each {
+            String absoluteDir = it.getPath()
+            [new File(absoluteDir, '../resources/log4j2.xml')].each {
+                if (!it.exists()) {
+                    it.createNewFile()
+                    File logFile = file(it)
+                    logFile.write(content, "utf-8")
+                }
+            }
+        }
+    }
+}
+
+// application.yml 파일 생성
+task createYML {
+    doLast {
+        String content = "spring:\n" +
+                "  mvc:\n" +
+                "    view:\n" +
+                "      prefix: /WEB-INF/views\n" +
+                "      suffix: .jsp\n" +
+                "  devtools:\n" +
+                "    livereload:\n" +
+                "      enabled: true\n"
+        if (dependenceOnRDBMS != null && dependenceOnRDBMS) {
+            content +=
+                    "  jpa:\n" +
+                            "    show-sql: true\n" +
+                            "    hibernate:\n" +
+                            "      ddl-auto: none\n" +
+                            "      naming:\n" +
+                            "        physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl\n" +
+                            "      use-new-id-generator-mappings: false\n"
+        }
+        if (dependenceOnSecurity != null && dependenceOnSecurity) {
+            content +=
+                    "  security:\n" +
+                            "    user:\n" +
+                            "      name: admin\n" +
+                            "      password: qwer1234\n" +
+                            "      roles: ADMIN\n"
+        }
+        content +=
+                "logging:\n" +
+                        "  config: classpath:log4j2.xml\n" +
+                        "debug: false\n" +
+                        "file:\n" +
+                        "  templatePath: classpath:/templates/\n" +
+                        "  staticPath: classpath:/static/\n" +
+                        "  resourceUri: /fileUpload/**\n" +
+                        "  resourcePath: D:/fileUpload/\n" +
+                        "---\n" +
+                        "# debug\n" +
+                        "spring:\n" +
+                        "  config:\n" +
+                        "    activate:\n" +
+                        "      on-profile: debug\n"
+        if (dependenceOnRDBMS != null && dependenceOnRDBMS) {
+            switch (typeOfRDMBS) {
+                case RDMBS.MSSQL:
+                    content += "  jpa:\n" +
+                            "    database-platform: org.hibernate.dialect.SQLServer2012Dialect\n" +
+                            "  datasource:\n" +
+                            "    driver-class-name: \n"
+                    if (hostOfDEBUG != null && hostOfDEBUG != "") {
+                        content += "    url: jdbc:sqlserver://" + hostOfDEBUG
+                    } else {
+                        content += "    url: jdbc:sqlserver://" + "______"
+                    }
+
+                    content += ";databaseName="
+
+                    if (databaseNameOfDEBUG != null && databaseNameOfDEBUG != "") {
+                        content += databaseNameOfDEBUG
+                    } else {
+                        content += "_____"
+                    }
+
+                    content += ";trustServerCertificate=true;encrypt=true;\n"
+                    if (usernameOfDEBUG !=null ) content += "    username: " +  usernameOfDEBUG + "\n"
+                    else content += "    username: \n"
+
+                    if (passwordOfDEBUG != null) content += "    password: " + passwordOfDEBUG + "\n"
+                    else content += "    password: \n"
+                    break
+                case RDMBS.MYSQL:
+                    content += "  jpa:\n" +
+                            "    database-platform: ??\n" +
+                            "  datasource:\n" +
+                            "    driver-class-name: \n"
+                    if (hostOfDEBUG != null && hostOfDEBUG != "") {
+                        content += "    url: jdbc:mysql://" + hostOfDEBUG + ":3306"
+                    } else {
+                        content += "    url: jdbc:mysql://" + "______" + ":3306"
+                    }
+
+                    content += "/"
+
+                    if (databaseNameOfDEBUG != null && databaseNameOfDEBUG != "") {
+                        content += databaseNameOfDEBUG
+                    } else {
+                        content += "_____"
+                    }
+
+                    content += "?serverTimezone=Asia/Seoul\n"
+                    if (usernameOfDEBUG !=null ) {
+                        content += "    username: " + usernameOfDEBUG + "\n"
+                    } else content += "    username: \n"
+
+                    if (passwordOfDEBUG != null) {
+                        content += "    password: " + passwordOfDEBUG + "\n"
+                    } else content += "    password: \n"
+                    break
+                case RDMBS.ORACLE:
+                    break
+            }
+        }
+        content +=
+                "server:\n" +
+                        "  port: 8080\n" +
+                        "  servlet:\n" +
+                        "    context-path: /\n" +
+                        "    session:\n" +
+                        "      timeout: 300m\n" +
+                        "---\n" +
+                        "# release\n" +
+                        "spring:\n" +
+                        "  config:\n" +
+                        "    activate:\n" +
+                        "      on-profile: release\n"
+        if (dependenceOnRDBMS != null && dependenceOnRDBMS) {
+
+            switch (typeOfRDMBS) {
+                case RDMBS.MSSQL:
+                    content += "  jpa:\n" +
+                            "    database-platform: org.hibernate.dialect.SQLServer2012Dialect\n" +
+                            "  datasource:\n" +
+                            "    driver-class-name: \n"
+                    if (hostOfRELASE != null && hostOfRELASE != "") {
+                        content += "    url: jdbc:sqlserver://" + hostOfRELASE
+                    } else {
+                        content += "    url: jdbc:sqlserver://" + "______"
+                    }
+
+                    content += ";databaseName="
+
+                    if (databaseNameOfRELASE != null && databaseNameOfRELASE != "") {
+                        content += databaseNameOfRELASE
+                    } else {
+                        content += "_____"
+                    }
+
+                    content += ";trustServerCertificate=true;encrypt=true;\n"
+                    if (usernameOfRELASE !=null ) {
+                        content += "    username: " + usernameOfRELASE + "\n"
+                    } else {content += "    username: \n"}
+
+                    if (passwordOfRELASE != null) {
+                        content += "    password: " + passwordOfRELASE + "\n"
+                    } else {content += "    password: \n"}
+                    break
+                case RDMBS.MYSQL:
+                    content += "  jpa:\n" +
+                            "    database-platform: org.hibernate.dialect.MySQL5InnoDBDialect\n" +
+                            "  datasource:\n" +
+                            "    driver-class-name: \n"
+                    if (hostOfRELASE != null && hostOfRELASE != "") {
+                        content += "    url: jdbc:mysql://" + hostOfRELASE + ":3306"
+                    } else {
+                        content += "    url: jdbc:mysql://" + "______" + ":3306"
+                    }
+
+                    content += "/"
+
+                    if (databaseNameOfRELASE != null && databaseNameOfRELASE != "") {
+                        content += databaseNameOfRELASE
+                    } else {
+                        content += "_____"
+                    }
+                    content += "?serverTimezone=Asia/Seoul\n"
+                    if (usernameOfRELASE !=null ) {
+                        content += "    username: " + usernameOfRELASE + "\n"
+                    } else {content += "    username: \n"}
+
+                    if (passwordOfRELASE != null) {
+                        content += "    password: " + passwordOfRELASE + "\n"
+                    } else {content += "    password: \n"}
+                    break
+                case RDMBS.ORACLE:
+                    break
+            }
+        }
+        content +=
+                "server:\n" +
+                        "  port: 80\n" +
+                        "  servlet:\n" +
+                        "    context-path: /\n" +
+                        "    session:\n" +
+                        "      timeout: 30m"
+
+        sourceSets.main.java.srcDirs.each {
+            String absoluteDir = it.getPath()
+            [new File(absoluteDir, '../resources/application.yml')].each {
+                if (!it.exists()) {
+                    it.createNewFile()
+                    File ymlFile = file(it)
+                    ymlFile.write(content, "utf-8")
+                }
+
+            }
+
+            [new File(absoluteDir, '../resources/application.properties')].each {
+                if (it.exists()) {
+                    it.delete()
+                }
+            }
+        }
+    }
+
+}

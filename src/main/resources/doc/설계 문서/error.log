@@ -1,0 +1,5 @@
+
+1. 시작할때 나는 오류 로그 ( 가끔 생김 )
+cannot assign instance of java.lang.StackTraceElement to field java.util.Collections$UnmodifiableList.list of type java.util.List in instance of java.util.Collections$UnmodifiableList
+
+
