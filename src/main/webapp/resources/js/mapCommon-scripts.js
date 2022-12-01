@@ -704,7 +704,7 @@ $.showModal = function (seq) {
     });
 
     if (result.success) {
-        $.SetMaxLevel($.LEVEL_THREE);
+        $.SetMaxLevel($.MAP_MIN_LEVEL);
         let data = result.data;
         $('#zoneSeq').val(data.zoneSeq);
         setEventHtml(data);

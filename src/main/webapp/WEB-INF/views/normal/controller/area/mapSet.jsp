@@ -138,7 +138,7 @@
 
                 //
                 $('#btnAddOverlay').click(function () {
-                    $.SetMaxLevel($.LEVEL_THREE);
+                    $.SetMaxLevel($.MAP_MIN_LEVEL);
                     $.isModifyArea = false;
                     $.setOverlayType('POLYGON');
                     $(this).hide();
@@ -151,7 +151,7 @@
 
                 //
                 $('#btnModifyOverlay').click(function () {
-                    $.SetMaxLevel($.LEVEL_THREE);
+                    $.SetMaxLevel($.MAP_MIN_LEVEL);
                     $.isModifyArea = true;
                     $(this).hide();
 
@@ -173,7 +173,7 @@
                 });
 
                 $.initBtnState = function () {
-                    $.SetMaxLevel($.LEVEL_TEN);
+                    $.SetMaxLevel($.MAP_MAX_LEVEL);
                     $.isModifyArea = false;
                     $('#btnModify').hide();
                     $('#btnCancel').hide();
@@ -299,7 +299,7 @@
                             $.displayArea($.clickedPolygon.area);
                             $('#areaSettingModal').offcanvas('hide');
                             alert("설정되었습니다.");
-                            $.SetMaxLevel($.LEVEL_TEN);
+                            $.SetMaxLevel($.MAP_MAX_LEVEL);
                         } else {
                             alert(result.msg);
                         }
