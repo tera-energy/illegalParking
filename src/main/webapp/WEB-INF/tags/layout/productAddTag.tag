@@ -73,28 +73,17 @@
 <script type="application/javascript">
 	$(function (){
 
-        // 1000 단위 콤마 찍기
-         function numberWithCommas(x) {
-            return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
-        }
-
-        // 콤마 삭제
-        function withoutCommas(x) {
-            return x.toString().replace(",", '');
-        }
-
         // 초기화
         function initialize() {
 
             // 구매 포인트의 숫자 여부 확인
             $('#pointValue').on('focusout', function (){
-               if ( !$.isNumeric(withoutCommas($(this).val()))) {
+               if ( !$.isNumeric($.withoutCommas($(this).val()))) {
                    $(this).val("");
 			   } else {
-                   $(this).val(numberWithCommas($(this).val()));
+                   $(this).val($.numberWithCommas($(this).val()));
 			   }
 			});
-
 
             // 브랜드 변경 이벤트 ( 제품 이미지 변경 )
             $('#brand').on('change', function () {

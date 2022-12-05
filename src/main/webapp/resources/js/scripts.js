@@ -180,3 +180,14 @@ $.eventFilterTagByButton = function (id, callback) {
 
     });
 }
+
+
+// 1000 단위 콤마 찍기
+$.numberWithCommas = function(x) {
+    return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+}
+
+// 콤마 삭제
+$.withoutCommas = function(x) {
+    return x.toString().replace(",", '');
+}

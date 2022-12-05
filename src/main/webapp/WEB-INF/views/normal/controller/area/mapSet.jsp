@@ -28,9 +28,9 @@
 	<stripes:layout-component name="contents">
 		<main>
 			<div class="container-fluid px-4">
-				<h1 class="mt-4">지도 보기</h1>
+				<h1 class="mt-4">구역 설정</h1>
 				<ol class="breadcrumb mb-4">
-					<li class="breadcrumb-item active"> ${subTitle} > 지도 보기</li>
+					<li class="breadcrumb-item active"> ${subTitle} > 구역 설정</li>
 				</ol>
 
 				<div class="row">
