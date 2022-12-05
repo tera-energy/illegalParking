@@ -333,6 +333,11 @@ $(function () {
         $.drawingZone((await $.getDongCodesBounds(map)).codes);
     }
 
+    $.SetMaxLevel = function(lev) {
+        map.setMaxLevel(lev);
+    }
+
+
     // 초기화 실행
     initializeKakao();
 

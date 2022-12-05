@@ -2,9 +2,6 @@ $(function () {
 
     $.isModifyArea = false;
 
-    $.MAP_MAX_LEVEL = 10;
-    $.MAP_MIN_LEVEL = 3;
-
     $.clickedPolygon = {};
 
     let CENTER_LATITUDE = 35.02035492064902;
@@ -54,9 +51,8 @@ $(function () {
 
     // Overlay 삭제 함수
     function removeOverlays() {
-        let len = overlays.length, i = 0;
-        for (; i < len; i++) {
-
+        const len = overlays.length;
+        for (let i = 0; i < len; i++) {
             overlays[i].setMap(null);
         }
         overlays = [];
