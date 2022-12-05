@@ -30,7 +30,7 @@
 				<div class="row">
 					<input hidden type="text" id="productSeq" >
 					<form id="data">
-						<img src="http://49.50.166.205:8090/americano.jpg" id="brandImg" style="width: 300px; height: 300px;">
+						<img id="brandImg" style="width: 300px; height: 300px;">
 						<div class="g-3 mb-4">
 							<br/>
 							<div class="row mb-2">
@@ -40,12 +40,12 @@
 							</div>
 							<div class="row  mb-2">
 								<div class="col-4">
-									<tags:inputTag id="name" title="제품명"/>
+									<tags:inputTag id="name" title="제품명" maxlength="20"/>
 								</div>
 							</div>
 							<div class="row  mb-2">
 								<div class="col-4">
-									<tags:inputTag id="pointValue" title="구매포인트"/>
+									<tags:inputTag id="pointValue" title="구매포인트" maxlength="7"/>
 								</div>
 							</div>
 
@@ -72,16 +72,79 @@
 
 <script type="application/javascript">
 	$(function (){
-        // 브랜드 변경 이벤트 ( 제품 이미지 변경 )
-        $('#brand').on('change', function () {
-            switch ($(this).val()) {
-                case "STARBUGS":
-                    $('#brandImg').attr('src', "http://49.50.166.205:8090/americano.jpg");
-                    break;
-                case "BASKINROBBINS":
-                    $('#brandImg').attr('src', "http://49.50.166.205:8090/icecreamCup.png");
-                    break;
-            }
-        });
+
+        // 1000 단위 콤마 찍기
+         function numberWithCommas(x) {
+            return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+        }
+
+        // 콤마 삭제
+        function withoutCommas(x) {
+            return x.toString().replace(",", '');
+        }
+
+        // 초기화
+        function initialize() {
+
+            // 구매 포인트의 숫자 여부 확인
+            $('#pointValue').on('focusout', function (){
+               if ( !$.isNumeric(withoutCommas($(this).val()))) {
+                   $(this).val("");
+			   } else {
+                   $(this).val(numberWithCommas($(this).val()));
+			   }
+			});
+
+
+            // 브랜드 변경 이벤트 ( 제품 이미지 변경 )
+            $('#brand').on('change', function () {
+                switch ($(this).val()) {
+                    case "STARBUGS":
+                        $('#brandImg').attr('src', imageServer + "americano.jpg");
+                        break;
+                    case "BASKINROBBINS":
+                        $('#brandImg').attr('src', imageServer + "icecreamCup.png");
+                        break;
+                }
+            });
+
+            // 등록 이벤트
+            $('#register').on("click", function () {
+
+                if ( $('#name').val() === "") {
+                    alert("제품명을 입력하세요.");
+                    return;
+				}
+
+                if ( $('#pointValue').val() === "" ) {
+                    alert("구매 포인트를 입력하세요.");
+                    return;
+				}
+
+                if (confirm("등록 하시겠습니까?")) {
+                    let data = $.getDataByProduct('data');
+                    data.thumbnail = $('#brandImg').attr('src').split('/').pop();
+                    $.JJAjaxSync({
+                        url: _contextPath + "/product/set",
+                        data: data,
+                        success: function () {
+                            if (confirm(" 등록 되었습니다. \n 계속 등록 하시겠습니까? ")) {
+                                location.href = location.href;
+                            } else {
+                                location.href = _contextPath + '/productList';
+                            }
+                        },
+                        error: function (code) {
+                            alert("등록 실패 하였습니다. (에러코드 : " + code + ")");
+                        }
+                    });
+                }
+            });
+
+            // 초기 이미지
+            $('#data img').attr('src', imageServer + "americano.jpg");
+		}
+
+        initialize();
     });
 </script>

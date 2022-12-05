@@ -15,6 +15,6 @@
   <label for="${id}" class="form-label">${title}</label>
 </c:if>
 <div class="input-group" id="${id}Group">
-  <input id="${id}" class="form-control" name="${id}" placeholder="검색 문자를 입력하세요." value="${searchStr}">
+  <input id="${id}" type="text" class="form-control text-dark" name="${id}" placeholder="검색 문자를 입력하세요." value="${searchStr}" autocomplete='off'/>
   <a class="btn btn-outline-primary" id="search">검색</a>
 </div>

@@ -550,11 +550,27 @@ public class MobileAPI {
             String regDtStr = jsonNode.get("regDt").asText();   // 신고 시간 (문자)
             LocalDateTime regDt = StringUtil.convertStringToDateTime(regDtStr, "yyyy-MM-dd HH:mm:ss"); // 신고 시간 (LocalDateTime 변환)
 
-            // 불법 주정차 구역 ( mybatis 로 가져오기 때문에 illegal_event 데이터는 따로 요청 해야함)
-            IllegalZone illegalZone = illegalZoneMapperService.get(lawDong.getCode(), latitude, longitude);
-
             // 사용자
             User user = userService.get(jsonNode.get("userSeq").asInt());
+
+            /** 동 코드에 속하지 않는 경우 신고에서 예외로 처리한다.*/
+            if ( lawDong == null) {
+                Receipt receipt_etc = new Receipt();
+                receipt_etc.setAddr(addr);
+                receipt_etc.setCarNum(carNum);
+                receipt_etc.setFileName(jsonNode.get("fileName").asText());
+                receipt_etc.setRegDt(regDt);
+                receipt_etc.setUser(user);
+                receipt_etc.setCode(lawDong.getCode());
+                receipt_etc.setReceiptStateType(ReceiptStateType.EXCEPTION);
+
+                receipt_etc = receiptService.set(receipt_etc);
+                _comment(receipt_etc.getReceiptSeq(), TeraExceptionCode.ILLEGAL_PARKING_NOT_AREA.getMessage());
+                throw new TeraException(TeraExceptionCode.ILLEGAL_PARKING_NOT_AREA);
+            }
+
+            // 불법 주정차 구역 ( mybatis 로 가져오기 때문에 illegal_event 데이터는 따로 요청 해야함)
+            IllegalZone illegalZone = illegalZoneMapperService.get(lawDong.getCode(), latitude, longitude);
 
             // 1. 불법 주정자 지역 체크 ( 불법 주정차 지역 인가? )
             if (illegalZone == null) {

@@ -58,6 +58,8 @@
         let _name = '${_user.name}';
         let _role = '${_user.role}';
 
+        let imageServer = "http://teraenergy.iptime.org:18095/";
+
         $(function () {
             let paths = location.pathname.split("/");
             let size = paths.length;

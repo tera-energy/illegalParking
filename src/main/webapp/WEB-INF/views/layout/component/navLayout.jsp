@@ -48,10 +48,10 @@
 						<a class="nav-link" id="navparking" href="${pageContext.request.contextPath}/parking" tabindex="-1" aria-disabled="true">공영주차장</a>
 					</li>
 					<li class="nav-item me-5">
-						<a class="nav-link" id="navpm" href="${pageContext.request.contextPath}/pm" tabindex="-1" aria-disabled="true">PM</a>
+						<a class="nav-link" id="navpm" href="${pageContext.request.contextPath}/pm" tabindex="-1" aria-disabled="true">PM(퍼스널 모빌리티)</a>
 					</li>
 					<li class="nav-item me-5">
-						<a class="nav-link" id="navcalculate" href="${pageContext.request.contextPath}/calculate" tabindex="-1" aria-disabled="true">결재</a>
+						<a class="nav-link" id="navcalculate" href="${pageContext.request.contextPath}/calculate" tabindex="-1" aria-disabled="true">결제</a>
 					</li>
 				</c:otherwise>
 			</c:choose>

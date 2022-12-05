@@ -102,18 +102,6 @@
 		<script type="application/javascript">
             $(function () {
 
-                // 데이터 가져오기
-                function getDataByProduct(id) {
-                    let arr = $('#' + id).serializeArray();
-                    let data = {};
-                    $(arr).each(function (index, obj) {
-                        data[obj.name] = obj.value;
-                    });
-                    data.userSeq = _userSeq;
-                    data.pointValue = Number(data.pointValue);
-                    return data;
-                }
-
                 // 검색
                 function search(pageNumber) {
                     if (pageNumber === undefined) {
@@ -181,7 +169,6 @@
                         search();
                     });
 
-
                     // 제품 테이블 항목 이벤트
                     $('#productTable tbody tr').on('click', function () {
 
@@ -208,31 +195,31 @@
                     });
 
                     // 등록 이벤트
-                    $('#register').on('click', function () {
-                        if (confirm("등록 하시겠습니까?")) {
-                            let data = getDataByProduct('data');
-                            data.thumbnail = $('#brandImg').attr('src').split('/').pop();
-                            $.JJAjaxSync({
-                                url: _contextPath + "/product/set",
-                                data: data,
-                                success: function () {
-                                    if (confirm(" 등록 되었습니다. \n 계속 등록 하시겠습니까? ")) {
-                                        location.href = location.href;
-                                    } else {
-                                        location.href = _contextPath + '/productList';
-                                    }
-                                },
-                                error: function (code) {
-                                    alert("등록 실패 하였습니다. (에러코드 : " + code + ")");
-                                }
-                            });
-                        }
-                    });
+                    // $('#register').on('click', function () {
+                    //     if (confirm("등록 하시겠습니까?")) {
+                    //         let data = $.getDataByProduct('data');
+                    //         data.thumbnail = $('#brandImg').attr('src').split('/').pop();
+                    //         $.JJAjaxSync({
+                    //             url: _contextPath + "/product/set",
+                    //             data: data,
+                    //             success: function () {
+                    //                 if (confirm(" 등록 되었습니다. \n 계속 등록 하시겠습니까? ")) {
+                    //                     location.href = location.href;
+                    //                 } else {
+                    //                     location.href = _contextPath + '/productList';
+                    //                 }
+                    //             },
+                    //             error: function (code) {
+                    //                 alert("등록 실패 하였습니다. (에러코드 : " + code + ")");
+                    //             }
+                    //         });
+                    //     }
+                    // });
 
                     // 수정 이벤트
                     $('#modify').on('click', function () {
                         if (confirm("수정 하시겠습니까?")) {
-                            let data = getDataByProduct('data');
+                            let data = $.getDataByProduct('data');
                             data.productSeq = Number($('#productSeq').val());
                             data.thumbnail = $('#brandImg').attr('src').split('/').pop();
                             $.JJAjaxSync({
@@ -261,7 +248,7 @@
 
                     //
                     $('#filterColumn').find('select[name="filterColumn"]').on('change', function () {
-                        $.searchSelect($(this).val());
+                        searchSelect($(this).val());
                     });
 
                     searchSelect('${filterColumn}');
