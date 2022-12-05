@@ -2,8 +2,8 @@ $(function () {
 
     $.isModifyArea = false;
 
-    $.LEVEL_TEN = 10;
-    $.LEVEL_THREE = 3;
+    $.MAP_MAX_LEVEL = 10;
+    $.MAP_MIN_LEVEL = 3;
 
     $.clickedPolygon = {};
 
@@ -35,13 +35,11 @@ $(function () {
     }
 
     $.undoManager = function() {
-        if($.isModifyArea) {
-            if(manager.getOverlays().polygon.length > 0) {
-                manager.remove(manager.getOverlays().polygon[0]);
-            }
-            $.isDrawPolygonAfterEvent = false;
-            $.isModifyArea = false;
+        if(manager.getOverlays().polygon.length > 0) {
+            manager.remove(manager.getOverlays().polygon[0]);
         }
+        $.isDrawPolygonAfterEvent = false;
+        $.isModifyArea = false;
     }
 
 
@@ -151,13 +149,13 @@ $(function () {
                         areaByAfterEvent = area;
                         polygonByAfterEvent = polygon;
                     } else {
-                        if (manager._mode === undefined || manager._mode === '') {
+                        if ($('#btnSet').css('display') === 'none' && (manager._mode === undefined || manager._mode === '')) {
                             $('#areaSettingModal').offcanvas('show');
                             let center = centroid(area.points);
                             drawingMap.panTo(new kakao.maps.LatLng(center.y,center.x));
                             $.showModal(area.seq);
+                            $.changeOptionStroke($.clickedPolygon.clickPolygon);
                         }
-                        $.changeOptionStroke($.clickedPolygon.clickPolygon);
                     }
                 }
             });
@@ -203,7 +201,7 @@ $(function () {
     function initializeKakao() {
         drawingMap = {
             center: new kakao.maps.LatLng(CENTER_LATITUDE, CENTER_LONGITUDE), // 지도의 중심좌표
-            level: 3, // 지도의 확대 레벨
+            level: $.MAP_MIN_LEVEL, // 지도의 확대 레벨
             disableDoubleClickZoom: true
         };
 
@@ -241,14 +239,17 @@ $(function () {
             target: drawingMap,
             event: 'rightclick',
             func: function (mouseEvent) {
-                if ($.isModifyArea) {
-                    $.undoManager();
-                } else {
-                    // 그리기 중이면 그리기를 취소합니다
-                    $.cancelDrawing();
-                    $.removeOverlaysOfManager();
+                let searchIllegalType = $('input:radio[name=searchIllegalType]:checked').val();
+                if(searchIllegalType === '') {
+                    if ($.isModifyArea) {
+                        $.undoManager();
+                    } else {
+                        // 그리기 중이면 그리기를 취소합니다
+                        $.cancelDrawing();
+                        // $.removeOverlaysOfManager();
+                    }
+                    // $.initBtnState();
                 }
-                $.initBtnState();
             }
         });
 
@@ -257,13 +258,13 @@ $(function () {
             target: drawingMap,
             event: 'dblclick',
             func: function (mouseEvent) {
-                if(!$.isModifyArea) {
+                let searchIllegalType = $('input:radio[name=searchIllegalType]:checked').val();
+                if (searchIllegalType === '' && !$.isModifyArea) {
                     $('#btnAddOverlay').hide();
                     $('#btnModifyOverlay').hide();
                     $('#btnSet').show();
                     $('#btnModify').hide();
                     $('#btnCancel').show();
-                    $('#areaSettingModal').offcanvas('hide');
                     $.setOverlayType('POLYGON');
                 }
             }
@@ -274,10 +275,11 @@ $(function () {
             target: drawingMap,
             event: 'click',
             func: function (mouseEvent) {
-                $.SetMaxLevel($.LEVEL_TEN);
-                $('#areaSettingModal').offcanvas('hide');
-
-                if($.beforeClickPolygon) {
+                if($('#areaSettingModal').hasClass('show')) {
+                    $.SetMaxLevel($.MAP_MAX_LEVEL);
+                    $('#areaSettingModal').offcanvas('hide');
+                }
+                if ($.beforeClickPolygon) {
                     $.changeOptionStroke();
                 }
             }
@@ -296,7 +298,7 @@ $(function () {
 
                 $('#mapLevel').text(level + '레벨');
 
-                if(level <= 3 && !$.isModifyArea) {
+                if(level <= $.MAP_MIN_LEVEL && !$.isModifyArea) {
                     obj = await $.getDongCodesBounds(drawingMap);
                     // 법정동 코드 변동이 없다면 폴리곤만 표시, 변동 있다면 다시 호출
                     if(!obj.uniqueCodesCheck) {
@@ -314,10 +316,10 @@ $(function () {
                 if(!$.isModifyArea) {
                     // 지도의  레벨을 얻어옵니다
                     let level = drawingMap.getLevel();
-                    if (level > 3) {
+                    if (level > $.MAP_MIN_LEVEL) {
                         removeOverlays();
                     } else {
-                        if (level === 3) {
+                        if (level === $.MAP_MIN_LEVEL) {
                             await $.drawingZone(obj.codes);
                         }
                     }

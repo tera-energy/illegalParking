@@ -132,7 +132,7 @@
 		});
 
 		$('.canvasClose').click(function(){
-			$.SetMaxLevel($.LEVEL_TEN);
+			$.SetMaxLevel($.MAP_MAX_LEVEL);
 			$.changeOptionStroke();
 		});
 
