@@ -210,6 +210,9 @@ $.currentMarkerSeq = 0;
 $.isClickedByMaker = false;
 $.isChangeMaker = false;
 
+$.MAP_MAX_LEVEL = 10;
+$.MAP_MIN_LEVEL = 3;
+
 //geoLocation API를 활용한 현재 위치를 구하고 지도의 중심 좌표 변경
 $.getCurrentPosition = function (map) {
     if (!!myLocMarker) myLocMarker.setMap(null);
@@ -297,38 +300,39 @@ function myLocationMarker(map, position) {
 
 // 꼭지점, 중심좌표의 법정동 코드 가져오기
 $.getDongCodesBounds = async function (map) {
-    let uniqueCodesCheck = false;
-
     // 맵 구역
-    let bounds = map.getBounds();
+    const bounds = map.getBounds();
     // 영역정보의 남서쪽 정보를 얻어옵니다
-    let swLatLng = bounds.getSouthWest();
-    let south = swLatLng.getLat();
-    let west = swLatLng.getLng();
+    const swLatLng = bounds.getSouthWest();
+    const south = swLatLng.getLat();
+    const west = swLatLng.getLng();
 
     // 영역정보의 북동쪽 정보를 얻어옵니다
-    let neLatLng = bounds.getNorthEast();
-    let north = neLatLng.getLat();
-    let east = neLatLng.getLng();
+    const neLatLng = bounds.getNorthEast();
+    const north = neLatLng.getLat();
+    const east = neLatLng.getLng();
 
     // 동, 서, 남, 북 좌표
     // log(east, west, south, north);
-    let center = map.getCenter();
+    const center = map.getCenter();
 
-    let latLngs = [{x: east, y: north}, {x: west, y: north}, {x: east, y: south}, {x: west, y: south}, {x: center.getLng(), y: center.getLat()}]
+    const latLngs = [{x: east, y: north}, {x: west, y: north}, {x: east, y: south}, {x: west, y: south}, {x: center.getLng(), y: center.getLat()}]
     let codes = [];
 
     for (const latLng of latLngs) {
-        let code = await coordinatesToDongCodeKakaoApi(latLng.x, latLng.y);
+        const code = await coordinatesToDongCodeKakaoApi(latLng.x, latLng.y);
         codes.push(code);
     }
     codes = [...new Set(codes)]
 
+
+    const uniqueCodesCheck = _.isEmpty(_.xor($.beforeCodes, codes));
+
     // log('codes : ', codes);
     // log('$.beforeCodes : ', $.beforeCodes);
+    // log('_.xor($.beforeCodes, codes) : ', _.xor($.beforeCodes, codes));
     // log('uniqueCodesCheck : ', uniqueCodesCheck);
 
-    uniqueCodesCheck = _.isEmpty(_.xor($.beforeCodes, codes));
 
     return {
         codes: codes,
