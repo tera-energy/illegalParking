@@ -1,5 +1,6 @@
 package com.teraenergy.illegalparking.model.entity.receipt.service;
 
+import com.teraenergy.illegalparking.model.entity.illegalEvent.domain.IllegalEvent;
 import com.teraenergy.illegalparking.model.entity.illegalEvent.enums.IllegalType;
 import com.teraenergy.illegalparking.model.entity.illegalzone.domain.IllegalZone;
 import com.teraenergy.illegalparking.model.entity.receipt.domain.Receipt;
@@ -55,6 +56,6 @@ public interface ReceiptService {
 
     long removes(List<Integer> receiptSeqs);
 
-    Receipt getByCarNumAndBetweenNow(Integer userSeq, String carNum, LocalDateTime regDt);
+    Receipt getByCarNumAndBetweenNow(Integer userSeq, String carNum, LocalDateTime regDt, IllegalEvent illegalEvent);
 
 }

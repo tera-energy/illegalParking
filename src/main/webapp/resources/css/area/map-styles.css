@@ -14,7 +14,7 @@
 
 @media (max-width: 767px){
   /*//모바일*/
-  #drawingMap, #map {
+  #drawMap, #map {
     width: 100%;
     height: 100vh;
   }
@@ -22,7 +22,7 @@
 
 @media (min-width: 900px) {
   /*// 데스크탑 일반*/
-  #drawingMap, #map {
+  #drawMap, #map {
     width: 100%;
     height: 650px;
   }

@@ -48,8 +48,8 @@
 								</div>
 								<div class="col-6 d-flex justify-content-end">
 									<div class="me-3">
-										<a class="btn btn-sm btn-outline-success" id="btnAddOverlay">구역추가</a>
-										<a class="btn btn-sm btn-outline-dark" id="btnModifyOverlay">구역수정</a>
+										<a class="btn btn-sm btn-outline-success" id="btnAddArea">구역추가</a>
+										<a class="btn btn-sm btn-outline-dark" id="btnModifyArea">구역수정</a>
 										<a class="btn btn-sm btn-outline-primary display-none" id="btnSet">저장</a>
 										<a class="btn btn-sm btn-outline-danger display-none" id="btnModify">수정</a>
 										<a class="btn btn-sm btn-outline-warning display-none" id="btnCancel">취소</a>
@@ -58,9 +58,7 @@
 							</div>
 						</div>
 						<div class="card-body mt-0 pt-0">
-								<%--							<div class="map_wrap">--%>
-							<div id="drawingMap"></div>
-								<%--							</div>--%>
+							<div id="drawMap"></div>
 						</div>
 					</div>
 
@@ -80,8 +78,8 @@
 
 	<!-- javascript -->
 	<stripes:layout-component name="javascript">
-		<script src="<%=contextPath%>/resources/js/mapCommon-scripts.js"></script>
-		<script src="<%=contextPath%>/resources/js/area/mapSet-scripts.js"></script>
+		<script src="<%=contextPath%>/resources/js/map-scripts.js"></script>
+		<script src="<%=contextPath%>/resources/js/area/areaSet-scripts.js"></script>
 		<script type="text/javascript">
             // 구역 Event Time 적용시간 켜기 / 끄기 함수
             function setTime(_this) {
@@ -101,12 +99,54 @@
 
             $(function () {
 
+                // kakao 초기화
+                $.initializeKakao();
+
+                //
+                $.getCurrentPosition($.drawingMap);
+
+                $.initBtnState = {
+                    set: "set",
+                    modify: "modify",
+                    init: "init",
+                    func: function (mode) {
+                        switch (mode) {
+                            case $.initBtnState.set:
+                                $.setOverlayType('POLYGON');
+                                $.SetMaxLevel($.MAP_MIN_LEVEL);
+                                $.isModifyArea = false;
+                                $('#btnAddArea').hide();
+                                $('#btnModifyArea').hide();
+                                $('#btnSet').show();
+                                $('#btnCancel').show();
+                                break;
+                            case $.initBtnState.modify:
+                                $.SetMaxLevel($.MAP_MIN_LEVEL);
+                                $.isModifyArea = true;
+                                $('#btnModify').show();
+                                $('#btnCancel').show();
+                                $('#btnModifyArea').hide();
+                                $('#btnAddArea').hide();
+                                break;
+                            case $.initBtnState.init:
+                                $.SetMaxLevel($.MAP_MAX_LEVEL);
+                                $.isModifyArea = false;
+                                $('#btnModify').hide();
+                                $('#btnCancel').hide();
+                                $('#btnSet').hide();
+                                $('#btnAddArea').show();
+                                $('#btnModifyArea').show();
+                                break;
+                        }
+                    }
+                };
+
                 // 주정차 별 구역 조회
                 $('input:radio[name=searchIllegalType]').change(async function () {
                     $('#areaSettingModal').offcanvas('hide');
                     if ($.getManagerPolygonsLength() > 0) {
                         if (confirm("저장하지 않은 구역은 삭제됩니다. 검색하시겠습니까?")) {
-                            $.removeOverlaysOfManager();
+                            $.removePolygonOfManager();
                         } else {
                             $('#type_all').prop('checked', true);
                             return false;
@@ -118,14 +158,14 @@
                     if (this.value === '') {
                         $('#btnCancel').trigger('click');
                     } else {
-                        $('#btnAddOverlay').hide();
-                        $('#btnModifyOverlay').hide();
+                        $('#btnAddArea').hide();
+                        $('#btnModifyArea').hide();
                         $('#btnModify').hide();
                         $('#btnSet').hide();
                         $('#btnCancel').hide();
                     }
 
-                    await $.drawingZoneWithCodes();
+                    await $.initializePolygon((await $.getDongCodesBounds($.drawingMap)).codes);
                 });
 
                 $('#usedFirst').change(function () {
@@ -136,30 +176,44 @@
                     setTime(this);
                 });
 
-                //
-                $('#btnAddOverlay').click(function () {
-                    $.SetMaxLevel($.MAP_MIN_LEVEL);
-                    $.isModifyArea = false;
-                    $.setOverlayType('POLYGON');
-                    $(this).hide();
-                    $('#btnSet').show();
-                    $('#btnCancel').show();
-                    $('#btnModify').hide();
-
-                    $('#btnModifyOverlay').hide();
+                // 구역 추가 버튼 이벤트
+                $('#btnAddArea').on('click', function () {
+                    $.initBtnState.func($.initBtnState.set);
                 });
 
-                //
-                $('#btnModifyOverlay').click(function () {
-                    $.SetMaxLevel($.MAP_MIN_LEVEL);
-                    $.isModifyArea = true;
-                    $(this).hide();
+				// 구역 저장 버튼 이벤트
+                $('#btnSet').on('click', async function () {
+                    let opt = $.getManagerData('set');
 
-                    $('#btnModify').show();
-                    $('#btnCancel').show();
-                    $('#btnSet').hide();
+                    if (opt.data.polygon.length <= 0) {
+                        alert('구역을 지정하시기 바랍니다.');
+                        return false;
+                    } else {
+                        // 폴리곤 중심좌표를 구해서 법정동 코드 넣기
+                        for (const polygon of opt.data.polygon) {
+                            let points = polygon.points;
+                            if(points.length < 3) {
+                                alert('구역지정은 3개 이상의 좌표가 있어야합니다.')
+                                return;
+                            };
+                            let centroidPoints = $.centroid(points);
+                            polygon.code = await $.async_coordinatesToDongCodeKakaoApi(centroidPoints.x, centroidPoints.y);
+                        }
+                        // 데이터 저장
+                        let result = $.JJAjaxAsync(opt);
+                        if(result.success) {
+                            $.initBtnState.func($.initBtnState.init);
+                            // 지도에 가져온 데이터로 도형들을 그립니다
+                            await $.initializePolygon((await $.getDongCodesBounds($.drawingMap)).codes);
+                            // 생성한 폴리곤 삭제
+                            $.removePolygonOfManager();
+                        }
+                    }
+                });
 
-                    $('#btnAddOverlay').hide();
+                // 구역 수정 버튼 이벤트
+                $('#btnModifyArea').on('click', function () {
+                    $.initBtnState.func($.initBtnState.modify);
                 });
 
                 $('#btnCancel').click(function () {
@@ -167,87 +221,37 @@
                         $.undoManager();
                     } else {
                         $.cancelDrawing();
-                        $.removeOverlaysOfManager();
+                        $.removePolygonOfManager();
                     }
-                    $.initBtnState();
-                });
-
-                $.initBtnState = function () {
-                    $.SetMaxLevel($.MAP_MAX_LEVEL);
-                    $.isModifyArea = false;
-                    $('#btnModify').hide();
-                    $('#btnCancel').hide();
-                    $('#btnSet').hide();
-
-                    $('#btnAddOverlay').show();
-                    $('#btnModifyOverlay').show();
-                }
-
-                // test .......
-                $('#btnSet').click(async function () {
-                    let opt = $.getManagerData('set');
-					log(opt);
-                });
-
-                // 구역 저장 함수
-                $('#btnSet').click(async function () {
-                	let opt = $.getManagerData('set');
-                	if (opt.data.polygon.length === 0) {
-                		alert('구역을 지정하시기 바랍니다.');
-                		return false;
-                	} else {
-                		// 폴리곤 중심좌표를 구해서 법정동 코드 넣기
-                		for (const polygon of opt.data.polygon) {
-                			let points = polygon.points;
-                			if(points.length < 3) {
-                				alert('구역지정은 3개 이상의 좌표가 있어야합니다.')
-                				return;
-							};
-                			let centroidPoints = centroid(points);
-                			// polygon.code = await coordinatesToDongCodeKakaoApi(centroidPoints.x, centroidPoints.y);
-                			polygon.code = await coordinatesToDongCodeKakaoApi(centroidPoints.x, centroidPoints.y);
-                		}
-                		// 데이터 저장
-                		let result = $.JJAjaxAsync(opt);
-                		if(result.success) {
-							$.initBtnState();
-                			// 지도에 가져온 데이터로 도형들을 그립니다
-                			await $.drawingZoneWithCodes();
-                			// 생성한 폴리곤 삭제
-                			$.removeOverlaysOfManager();
-                		}
-                	}
+                    $.initBtnState.func($.initBtnState.init);
                 });
 
                 // 구역 수정 함수
                 $('#btnModify').click(async function () {
-
                 	let opt = $.getManagerData('modify');
-
                 	let managerPolygon = opt.data.polygon;
                 	if (managerPolygon === undefined) {
                 		alert('구역을 지정하시기 바랍니다.');
                 		return false;
                 	} else {
                 		if (confirm("수정하시겠습니까?")) {
-                			let polygonObj = $.newPolygon(managerPolygon)
+                			let polygonObj = $.getPolygonObj(managerPolygon)
 
                 			let points = managerPolygon.points;
-                			let centroidPoints = centroid(points);
-                			managerPolygon.code = await coordinatesToDongCodeKakaoApi(
-                					centroidPoints.x, centroidPoints.y);
+                			let centroidPoints = $.centroid(points);
+                			managerPolygon.code = await $.async_coordinatesToDongCodeKakaoApi(centroidPoints.x, centroidPoints.y);
                 			let result = $.JJAjaxAsync(opt);
 
                 			if (result.success) {
                 				$.isDrawPolygonAfterEvent = false;
-                				$.removeOverlaysOfManager();
+                				$.removePolygonOfManager();
                 				polygonObj.polygon.setMap(null);
 
                 				managerPolygon.options = polygonStyle;
                 				managerPolygon.type = result.data;
-                				managerPolygon.seq = $.clickedPolygon.area.seq;
+                				managerPolygon.seq = $.clickedPolygon.seq;
 
-                				$.displayArea(managerPolygon);
+                				$.displayPolygon(managerPolygon);
                 			}
                 		}
                 	}
@@ -265,7 +269,7 @@
                         let result = $.JJAjaxAsync(opt);
 
                         if (result.success) {
-                            $.clickedPolygon.clickPolygon.setMap(null);
+                            $.clickedPolygon.setMap(null);
                         }
 
                         $('#areaSettingModal').offcanvas('hide');
@@ -275,8 +279,15 @@
 
                 // 구역 이벤트 설정
                 $('#btnModifyEvent').click(function () {
+
+                    if ($('#name').val() === null ) {
+                        alert("불법주정차 그룹을 선택하세요.");
+						return;
+					}
+
                     if (confirm("설정하시겠습니까?")) {
                         let form = $('#formAreaSetting').serializeObject();
+
                         form['usedFirst'] = !$('#usedFirst').is(':checked');
                         form['usedSecond'] = !$('#usedSecond').is(':checked');
                         form['firstStartTime'] = $('#firstStartTimeHour').val() + ':' + $('#firstStartTimeMinute').val();
@@ -290,16 +301,19 @@
                         });
 
                         if (result.success) {
-                            $.clickedPolygon.clickPolygon.setMap(null);
                             $.beforeClickPolygon = undefined;
-                            $.clickedPolygon.clickPolygon.setOptions({
+                            $.clickedPolygon.setOptions({
                                 strokeWeight: 0,
                             });
-                            $.clickedPolygon.area.type = form['illegalType'];
-                            $.displayArea($.clickedPolygon.area);
-                            $('#areaSettingModal').offcanvas('hide');
-                            alert("설정되었습니다.");
+                            $.clickedPolygon.type = form['illegalType'];
                             $.SetMaxLevel($.MAP_MAX_LEVEL);
+                            $.removePolygonOnMap($.clickedPolygon);
+                            alert("설정되었습니다.");
+                            setTimeout(function (){
+                                $.addPolygonOnMap($.clickedPolygon, $.drawingMap);
+                                $('#areaSettingModal').offcanvas('hide');
+							}, 300);
+
                         } else {
                             alert(result.msg);
                         }

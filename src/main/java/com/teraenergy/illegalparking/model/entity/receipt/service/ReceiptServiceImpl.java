@@ -3,6 +3,7 @@ package com.teraenergy.illegalparking.model.entity.receipt.service;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.querydsl.jpa.impl.JPAUpdateClause;
+import com.teraenergy.illegalparking.model.entity.illegalEvent.domain.IllegalEvent;
 import com.teraenergy.illegalparking.model.entity.illegalEvent.enums.IllegalType;
 import com.teraenergy.illegalparking.model.entity.illegalzone.domain.IllegalZone;
 import com.teraenergy.illegalparking.model.entity.receipt.domain.QReceipt;
@@ -275,11 +276,18 @@ public class ReceiptServiceImpl implements ReceiptService {
 
     // 현재 기준에서 11분전 사이의 해당 차량 번호로 신고등록 정보 가져오기
     @Override
-    public Receipt getByCarNumAndBetweenNow(Integer userSeq, String carNum, LocalDateTime regDt) {
+    public Receipt getByCarNumAndBetweenNow(Integer userSeq, String carNum, LocalDateTime regDt, IllegalEvent illegalEvent) {
         JPAQuery query = jpaQueryFactory.selectFrom(QReceipt.receipt);
         query.where(QReceipt.receipt.user.userSeq.eq(userSeq));
         query.where(QReceipt.receipt.carNum.eq(carNum));
-        query.where(QReceipt.receipt.regDt.between(regDt.minusMinutes(11), regDt));
+        switch (illegalEvent.getIllegalType()) {
+            case ILLEGAL:
+                query.where(QReceipt.receipt.regDt.between(regDt.minusMinutes(11), regDt));
+                break;
+            case FIVE_MINUTE:
+                query.where(QReceipt.receipt.regDt.between(regDt.minusMinutes(16), regDt));
+                break;
+        }
         query.where(QReceipt.receipt.receiptStateType.ne(ReceiptStateType.NOTHING));
         query.where(QReceipt.receipt.isDel.isFalse());
         query.limit(1);

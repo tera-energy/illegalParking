@@ -91,8 +91,8 @@
 
 	<!-- javascript -->
 	<stripes:layout-component name="javascript">
-		<script src="<%=contextPath%>/resources/js/mapCommon-scripts.js"></script>
-		<script src="<%=contextPath%>/resources/js/area/map-scripts.js"></script>
+		<script src="<%=contextPath%>/resources/js/map-scripts.js"></script>
+		<script src="<%=contextPath%>/resources/js/area/area-scripts.js"></script>
 		<script type="application/javascript">
 
 			let tempLat1 = 0;
@@ -221,7 +221,7 @@
 						points.push(new Point(x, y));
 					})
 
-					if (isInside(points, points.length, current_point)) {
+					if ($.isInside(points, points.length, current_point)) {
                         illegalType = polygons[i].type;
                         isInsideByCurrent = true;
 						break;

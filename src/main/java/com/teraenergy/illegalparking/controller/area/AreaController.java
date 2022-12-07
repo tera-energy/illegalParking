@@ -47,7 +47,7 @@ public class AreaController extends ExtendsController {
         RequestUtil requestUtil = new RequestUtil(request);
         requestUtil.setParameterToModel(model);
         model.addAttribute("subTitle", subTitle);
-        return getPath("/mapSet");
+        return getPath("/areaSet");
     }
 
     @GetMapping("/area/groupList")
@@ -128,7 +128,7 @@ public class AreaController extends ExtendsController {
         if ( device.isMobile() || device.isTablet()) {
             return null;
         } else {
-            modelAndView.setViewName(getPath("/map"));
+            modelAndView.setViewName(getPath("/area"));
         }
         return modelAndView;
     }
@@ -138,9 +138,9 @@ public class AreaController extends ExtendsController {
         ModelAndView modelAndView = new ModelAndView();
         modelAndView.addObject("subTitle", subTitle);
         if ( device.isMobile() || device.isTablet()) {
-            modelAndView.setViewName(getMobilePath("/map"));
+            modelAndView.setViewName(getMobilePath("/area"));
         } else {
-            modelAndView.setViewName(getPath("/map"));
+            modelAndView.setViewName(getPath("/area"));
         }
         return modelAndView;
     }

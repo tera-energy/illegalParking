@@ -1,9 +1,7 @@
 package com.teraenergy.illegalparking.controller.login;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.google.common.base.Strings;
 import com.teraenergy.illegalparking.controller.ExtendsController;
-import com.teraenergy.illegalparking.encrypt.YoungEncoder;
 import com.teraenergy.illegalparking.exception.TeraException;
 import com.teraenergy.illegalparking.exception.enums.TeraExceptionCode;
 import com.teraenergy.illegalparking.model.entity.user.domain.User;
@@ -12,7 +10,6 @@ import com.teraenergy.illegalparking.model.entity.user.service.UserService;
 import com.teraenergy.illegalparking.util.JsonUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.tomcat.util.http.RequestUtil;
 import org.springframework.mobile.device.Device;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -48,7 +45,7 @@ public class LoginController extends ExtendsController {
         } else if (device.isTablet()) {
             return getPath("/login");
         } else {
-            return "/mobile/controller/area/map";
+            return "area";
         }
     }
 

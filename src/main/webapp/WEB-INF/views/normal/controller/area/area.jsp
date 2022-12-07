@@ -66,8 +66,8 @@
 
 	<!-- javascript -->
 	<stripes:layout-component name="javascript">
-		<script src="<%=contextPath%>/resources/js/mapCommon-scripts.js"></script>
-		<script src="<%=contextPath%>/resources/js/area/map-scripts.js"></script>
+		<script src="<%=contextPath%>/resources/js/map-scripts.js"></script>
+		<script src="<%=contextPath%>/resources/js/area/area-scripts.js"></script>
 		<script type="application/javascript">
 			$(function () {
 

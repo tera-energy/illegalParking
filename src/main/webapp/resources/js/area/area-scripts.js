@@ -21,7 +21,7 @@ $(function () {
         // 지도에 영역데이터를 폴리곤으로 표시합니다
         for (const element of polygons) {
             $.polygons.push(element);
-            $.displayArea(element);
+            $.displayPolygon(element);
         }
     }
 
@@ -81,7 +81,7 @@ $(function () {
                     // 법정동 코드 변동이 없다면 폴리곤만 표시, 변동 있다면 다시 호출
                     if (!obj.uniqueCodesCheck) {
                         if ($.mapSelected === 'zone') {
-                            $.drawingZone(obj.codes);
+                            $.initializePolygon(obj.codes);
                         } else {
                             await $.getsMarker(obj.codes);
                         }
@@ -103,7 +103,7 @@ $(function () {
                 } else {
                     if (level === 3) {
                         if ($.mapSelected === 'zone') {
-                            $.drawingZone(obj.codes);
+                            $.initializePolygon(obj.codes);
                         } else {
                             await $.getsMarker(obj.codes);
                         }
@@ -145,9 +145,14 @@ $(function () {
     }
 
     // 다각형을 생상하고 이벤트를 등록하는 함수입니다
-    $.displayArea = function (area) {
-        let path = $.pointsToPath(area.points);
-        let style = area.options;
+    $.displayPolygon = function (area) {
+        let path = $.convertPointsToPath(area.points);
+        let style ;
+        if ( area.options === undefined) {
+            style = polygonStyle
+        } else  {
+            style = area.options;
+        }
 
         // 다각형을 생성합니다
         let polygon = new kakao.maps.Polygon({
@@ -191,12 +196,11 @@ $(function () {
 
                     $.changeOptionStroke(polygon);
 
-                    let center = centroid(area.points);
+                    let center = $.centroid(area.points);
                     let centerLatLng = new kakao.maps.LatLng(center.y, center.x);
                     map.panTo(centerLatLng);
-                    $('#areaViewModal').offcanvas('show');
                     $('.timeSelect').attr('disabled', true);
-                    $.showModal(area.seq);
+                    $.showModal(area.seq, 'areaSettingModal');
                 }
             });
             if($.beforeClickPolygon) {
@@ -223,7 +227,7 @@ $(function () {
     }
 
     // 동코드를 이용해서 zone 그리기 함수
-    $.drawingZone = function (codes) {
+    $.initializePolygon = function (codes) {
         let searchIllegalType = $('input:radio[name=searchIllegalType]:checked').val();
         if (searchIllegalType === undefined) {
             searchIllegalType = '';
@@ -244,7 +248,7 @@ $(function () {
         });
         if(result.success) {
             $.beforeCodes = codes;
-            drawingPolygons($.getPolygonData(result.data));
+            drawingPolygons($.getPolygons(result.data));
         }
     }
 
@@ -306,7 +310,7 @@ $(function () {
     $.processDongCodesBounds = async function () {
         $.loading(true);
         if ($.mapSelected === 'zone') {
-            $.drawingZone((await $.getDongCodesBounds(map)).codes);
+            $.initializePolygon((await $.getDongCodesBounds(map)).codes);
         } else {
             $.getsMarker((await $.getDongCodesBounds(map)).codes);
 
@@ -330,7 +334,7 @@ $(function () {
     }
 
     $.changeIllegalType = async function () {
-        $.drawingZone((await $.getDongCodesBounds(map)).codes);
+        $.initializePolygon((await $.getDongCodesBounds(map)).codes);
     }
 
     $.SetMaxLevel = function(lev) {
