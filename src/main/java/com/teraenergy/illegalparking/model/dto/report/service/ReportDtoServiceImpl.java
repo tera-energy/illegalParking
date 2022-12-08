@@ -171,7 +171,7 @@ public class ReportDtoServiceImpl implements ReportDtoService {
                 User user = userService.get(report.getReportUserSeq());
                 reportDto.setGovernmentName(user.getGovernMentOffice().getName());
 
-                Point point = pointService.get(report.getReceipt().getIllegalZone().getIllegalEvent().getGroupSeq());
+                Point point = pointService.getInGroup(report.getReceipt().getIllegalZone().getIllegalEvent().getGroupSeq());
                 String mark = "-";
                 switch (point.getPointType()) {
                     case PLUS:
