@@ -131,7 +131,7 @@
             $.setGroupNames(locationType);
 		});
 
-		$('.canvasClose').click(function(){
+		$('.canvasClose').on('change', function(){
 			$.SetMaxLevel($.MAP_MAX_LEVEL);
 			$.changeOptionStroke();
 		});

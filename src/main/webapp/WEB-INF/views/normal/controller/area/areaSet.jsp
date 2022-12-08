@@ -216,7 +216,7 @@
                     $.initBtnState.func($.initBtnState.modify);
                 });
 
-                $('#btnCancel').click(function () {
+                $('#btnCancel').on('click',function () {
                     if ($.isModifyArea) {
                         $.undoManager();
                     } else {
@@ -227,7 +227,7 @@
                 });
 
                 // 구역 수정 함수
-                $('#btnModify').click(async function () {
+                $('#btnModify').on('click', async function () {
                 	let opt = $.getManagerData('modify');
                 	let managerPolygon = opt.data.polygon;
                 	if (managerPolygon === undefined) {
@@ -258,7 +258,7 @@
                 });
 
                 //폴리곤 삭제 함수
-                $('#btnRemove').click(function () {
+                $('#btnRemove').on('click', function () {
                     if (confirm("삭제하시겠습니까?")) {
                         let opt = {
                             url: _contextPath + "/zone/remove",
@@ -278,7 +278,7 @@
                 });
 
                 // 구역 이벤트 설정
-                $('#btnModifyEvent').click(function () {
+                $('#btnModifyEvent').on('click', function () {
 
                     if ($('#name').val() === null ) {
                         alert("불법주정차 그룹을 선택하세요.");
@@ -288,10 +288,10 @@
                     if (confirm("설정하시겠습니까?")) {
                         let form = $('#formAreaSetting').serializeObject();
 
-                        form['usedFirst'] = !$('#usedFirst').is(':checked');
-                        form['usedSecond'] = !$('#usedSecond').is(':checked');
-                        form['firstStartTime'] = $('#firstStartTimeHour').val() + ':' + $('#firstStartTimeMinute').val();
-                        form['firstEndTime'] = $('#firstEndTimeHour').val() + ':' + $('#firstEndTimeMinute').val();
+						form['usedFirst'] = !$('#usedFirst').is(':checked');
+						form['usedSecond'] = !$('#usedSecond').is(':checked');
+						form['firstStartTime'] = $('#firstStartTimeHour').val() + ':' + $('#firstStartTimeMinute').val();
+						form['firstEndTime'] = $('#firstEndTimeHour').val() + ':' + $('#firstEndTimeMinute').val();
                         form['secondStartTime'] = $('#secondStartTimeHour').val() + ':' + $('#secondStartTimeMinute').val();
                         form['secondEndTime'] = $('#secondEndTimeHour').val() + ':' + $('#secondEndTimeMinute').val();
 

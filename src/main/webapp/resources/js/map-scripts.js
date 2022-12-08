@@ -188,10 +188,10 @@ function setImgOrigin(pmType) {
 
 // 구역 Event Time 초기화 함수
 function initializeEventTime(first, second) {
-    let firstStartTimeHour = '12';
-    let firstEndTimeHour = '14';
-    let secondStartTimeHour = '20';
-    let secondEndTimeHour = '08';
+    const firstStartTimeHour = '12';
+    const firstEndTimeHour = '14';
+    const secondStartTimeHour = '20';
+    const secondEndTimeHour = '08';
     if (first) {
         $('#firstStartTimeHour').val(firstStartTimeHour).prop('selected', true);
         $('#firstStartTimeMinute').val('00').prop('selected', true);
@@ -209,15 +209,15 @@ function initializeEventTime(first, second) {
 }
 
 // 구역 Event Time 시간 설정 함수
-function setEventTime(data) {
-    let first = data.usedFirst;
-    let second = data.usedSecond;
+function setEventTime(timeObj) {
+    const first = timeObj.usedFirst;
+    const second = timeObj.usedSecond;
     if (first === true || second === true) {
         initializeEventTime(first, second);
     }
     if (first === false) {
-        let firstStartTime = data.firstStartTime.split(':');
-        let firstEndTime = data.firstEndTime.split(':');
+        let firstStartTime = timeObj.firstStartTime.split(':');
+        let firstEndTime = timeObj.firstEndTime.split(':');
         $('#firstStartTimeHour').val(firstStartTime[0]).prop('selected', true);
         $('#firstStartTimeMinute').val(firstStartTime[1]).prop('selected', true);
 
@@ -225,8 +225,8 @@ function setEventTime(data) {
         $('#firstEndTimeMinute').val(firstEndTime[1]).prop('selected', true);
     }
     if (second === false) {
-        let secondStartTime = data.secondStartTime.split(':');
-        let secondEndTime = data.secondEndTime.split(':');
+        let secondStartTime = timeObj.secondStartTime.split(':');
+        let secondEndTime = timeObj.secondEndTime.split(':');
         $('#secondStartTimeHour').val(secondStartTime[0]).prop('selected', true);
         $('#secondStartTimeMinute').val(secondStartTime[1]).prop('selected', true);
 
@@ -237,41 +237,52 @@ function setEventTime(data) {
 
 // 구역 Event Form 설정 함수
 function setEventHtml(data) {
-    let locationType = $('#locationType');
-    let btnModifyEvent = $('#btnModifyEvent');
-    let usedFirst = $('#usedFirst');
-    let usedSecond = $('#usedSecond');
+    const $locationType = $('#locationType');
+    const $btnModifyEvent = $('#btnModifyEvent');
+    const $usedFirst = $('#usedFirst');
+    const $usedSecond = $('#usedSecond');
 
-    $('#offcanvasRightLabel').text(data.zoneSeq + '번 구역설정')
+    const timeObj = {
+        usedFirst: data.usedFirst,
+        usedSecond: data.usedSecond,
+        firstStartTime: data.firstStartTime,
+        firstEndTime: data.firstEndTime,
+        secondStartTime: data.secondStartTime,
+        secondEndTime: data.secondEndTime,
+    }
+
+    $('#offcanvasRightLabel').text(data.zoneSeq + '번 구역설정');
     if (data.eventSeq === null) {
-        data.usedFirst = true;
-        data.usedSecond = true;
+        timeObj.usedFirst = true;
+        timeObj.usedSecond = true;
 
         $('input:radio[name=illegalType]').eq(0).prop('checked', true);
         $('#locationType option:eq(0)').prop('selected', true);
-        usedFirst.prop('checked', false);
-        usedSecond.prop('checked', false);
+        $usedFirst.prop('checked', false);
+        $usedSecond.prop('checked', false);
         $('.timeSelect').attr('disabled', true);
-        locationType.trigger('change');
-        btnModifyEvent.text('등록');
-        btnModifyEvent.addClass('btn-primary');
-        btnModifyEvent.removeClass('btn-danger');
-        locationType.trigger('change');
+        $locationType.trigger('change');
+        $btnModifyEvent.text('등록');
+        $btnModifyEvent.addClass('btn-primary');
+        $btnModifyEvent.removeClass('btn-danger');
+        $locationType.trigger('change');
     } else {
-        data.usedFirst === false ? usedFirst.prop('checked', true) : usedFirst.prop('checked', false);
-        data.usedSecond === false ? usedSecond.prop('checked', true) : usedSecond.prop('checked', false);
-        usedFirst.trigger('change');
-        usedSecond.trigger('change');
+        data.usedFirst === false ? $usedFirst.prop('checked', true) : $usedFirst.prop('checked', false);
+        data.usedSecond === false ? $usedSecond.prop('checked', true) : $usedSecond.prop('checked', false);
+        $usedFirst.trigger('change');
+        $usedSecond.trigger('change');
         $('#eventSeq').val(data.eventSeq);
         $('input:radio[name=illegalType]:input[value="' + data.illegalType + '"]').prop('checked', true);
         $.setGroupNames(data.locationType);
-        locationType.val(data.locationType).prop('selected', true);
-        locationType.trigger('change');
+        $locationType.val(data.locationType).prop('selected', true);
+        $locationType.trigger('change');
         $('#name').val(data.groupSeq).prop('selected', true);
-        btnModifyEvent.text('수정');
-        btnModifyEvent.addClass('btn-danger');
-        btnModifyEvent.removeClass('btn-primary');
+        $btnModifyEvent.text('수정');
+        $btnModifyEvent.addClass('btn-danger');
+        $btnModifyEvent.removeClass('btn-primary');
     }
+
+    setEventTime(timeObj);
 }
 
 
@@ -660,7 +671,6 @@ $.showModal = function (seq, id) {
         let data = result.data;
         $('#zoneSeq').val(data.zoneSeq);
         setEventHtml(data);
-        setEventTime(data);
 
         $('#'+id).offcanvas('show');
     } else {
