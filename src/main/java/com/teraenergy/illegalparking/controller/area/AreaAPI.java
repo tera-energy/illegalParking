@@ -187,7 +187,11 @@ public class AreaAPI {
             if (getIllegalZone.getEventSeq() == 0) zoneType = "";
             else zoneType = illegalEventService.get(getIllegalZone.getEventSeq()).getIllegalType().toString();
 
-            return zoneType;
+            IllegalZoneDto illegalZoneDto = new IllegalZoneDto();
+            illegalZoneDto.setZoneSeq(jsonNode.get("seq").asInt());
+            illegalZoneDto.setIllegalType(zoneType);
+
+            return illegalZoneDto;
         } catch (Exception e) {
             throw new TeraException(TeraExceptionCode.ZONE_MODIFY_FAIL, e);
         }

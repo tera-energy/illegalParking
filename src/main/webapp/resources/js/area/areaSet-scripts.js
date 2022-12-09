@@ -172,7 +172,9 @@ $.displayPolygon = function (polygon_) {
             $.changeOptionStroke(polygon);
         }
     }
-    polygons.push(polygon);
+    if (!$.isModifyArea) {
+        polygons.push(polygon);
+    }
 }
 
 $.initializePolygon = function (codes) {

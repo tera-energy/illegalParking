@@ -75,6 +75,8 @@
                 function initializeByWeb() {
                     // 주정차 별 구역 조회
                     $('input:radio[name=searchIllegalType]').change(function () {
+						$('#areaViewModal').offcanvas('hide');
+						$.changeOptionStroke();
                         $.changeIllegalType();
                     });
 					$.findMe();

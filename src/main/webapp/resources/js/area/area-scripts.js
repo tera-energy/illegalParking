@@ -197,10 +197,9 @@ $(function () {
                     $.changeOptionStroke(polygon);
 
                     let center = $.centroid(area.points);
-                    let centerLatLng = new kakao.maps.LatLng(center.y, center.x);
-                    map.panTo(centerLatLng);
+                    map.panTo(new kakao.maps.LatLng(center.y, center.x));
                     $('.timeSelect').attr('disabled', true);
-                    $.showModal(area.seq, 'areaSettingModal');
+                    $.showModal(area.seq, 'areaViewModal');
                 }
             });
             if($.beforeClickPolygon) {
