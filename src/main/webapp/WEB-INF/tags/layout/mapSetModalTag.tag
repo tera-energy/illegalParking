@@ -127,11 +127,11 @@
         // 위치 변경 이벤트
 		$('#locationType').on('change', function (){
 			$("#name option").remove();
-           let locationType = $(this).val();
+           	let locationType = $(this).val();
             $.setGroupNames(locationType);
 		});
 
-		$('.canvasClose').on('change', function(){
+		$('.canvasClose').on('click', function(){
 			$.SetMaxLevel($.MAP_MAX_LEVEL);
 			$.changeOptionStroke();
 		});
