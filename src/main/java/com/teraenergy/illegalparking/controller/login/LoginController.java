@@ -36,7 +36,7 @@ public class LoginController extends ExtendsController {
     /* GET */
 
     @GetMapping(value = "/login")
-    public String login(Model model, HttpServletRequest request, Device device) {
+    public String login(HttpServletRequest request, Model model, Device device) {
         // 인증 페이지로 이동하기 전 URL 기억
         String header = request.getHeader("home");
         request.getSession().setAttribute("prevPage", header);
@@ -50,12 +50,12 @@ public class LoginController extends ExtendsController {
     }
 
     @GetMapping("/password")
-    public String password(Model model, HttpServletRequest request){
+    public String password(HttpServletRequest request, Model model){
         return getPath("/password");
     }
 
     @GetMapping(value = "/register")
-    public String register(Model model, HttpServletRequest request){
+    public String register(HttpServletRequest request, Model model ){
         return getPath("/register");
     }
 
@@ -67,7 +67,6 @@ public class LoginController extends ExtendsController {
         try {
             JsonNode jsonNode = JsonUtil.toJsonNode(body);
 
-            // TODO : 사용자의 역활 ...
             User user = new User();
             user.setRole(Role.USER);
             user.setName(jsonNode.get("name").asText());

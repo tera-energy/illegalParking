@@ -1,7 +1,8 @@
-package com.teraenergy.illegalparking.strategy;
+package com.teraenergy.illegalparking.lib.strategy.receipt.concrete;
 
 import com.teraenergy.illegalparking.exception.TeraException;
 import com.teraenergy.illegalparking.exception.enums.TeraExceptionCode;
+import com.teraenergy.illegalparking.lib.strategy.receipt.ReceiptStrategy;
 import com.teraenergy.illegalparking.model.entity.comment.domain.Comment;
 import com.teraenergy.illegalparking.model.entity.comment.service.CommentService;
 import com.teraenergy.illegalparking.model.entity.illegalEvent.domain.IllegalEvent;

@@ -3,6 +3,7 @@ package com.teraenergy.illegalparking.controller.parking;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.teraenergy.illegalparking.controller.ExtendsController;
 import com.teraenergy.illegalparking.exception.TeraException;
+import com.teraenergy.illegalparking.lib.strategy.page.PageStrategy;
 import com.teraenergy.illegalparking.model.entity.parking.domain.Parking;
 import com.teraenergy.illegalparking.model.entity.parking.enums.ParkingFilterColumn;
 import com.teraenergy.illegalparking.model.entity.parking.service.ParkingService;
@@ -33,6 +34,8 @@ public class ParkingController extends ExtendsController {
     private final ObjectMapper objectMapper;
 
     private final ParkingService parkingService;
+
+    private final PageStrategy pageStrategy;
 
     private String subTitle = "공영주차장";
 
@@ -84,30 +87,8 @@ public class ParkingController extends ExtendsController {
         }
 
         Page<Parking> pages = parkingService.gets(pageNumber, pageSize, filterColumn, searchStr);
+        pageStrategy.setModelForPageTag(pages.getTotalPages(), pageNumber, pageSize, model);
 
-        boolean isBeginOver = false;
-        boolean isEndOver = false;
-
-        int totalPages = pages.getTotalPages();
-
-        int offsetPage = pageNumber - 1;
-
-        if (offsetPage >= (totalPages-2)) {
-            offsetPage = totalPages-2;
-        } else {
-            if (totalPages > 3) isEndOver = true;
-        }
-
-        if ( offsetPage < 1) {
-            offsetPage = 1;
-        } else {
-            if (offsetPage > 1 && totalPages > 3) isBeginOver = true;
-        }
-
-        model.addAttribute("offsetPage", offsetPage);
-        model.addAttribute("totalPages", totalPages);
-        model.addAttribute("isBeginOver", isBeginOver);
-        model.addAttribute("isEndOver", isEndOver);
         model.addAttribute("parkings", pages.getContent());
         model.addAttribute("subTitle", subTitle);
 
@@ -118,9 +99,7 @@ public class ParkingController extends ExtendsController {
     public String parkingAdd(Model model, HttpServletRequest request) throws TeraException {
         RequestUtil requestUtil = new RequestUtil(request);
         requestUtil.setParameterToModel(model);
-
         model.addAttribute("subTitle", subTitle);
-
         return getPath("/parkingAdd");
     }
 

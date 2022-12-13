@@ -2,6 +2,7 @@ package com.teraenergy.illegalparking.controller.report;
 
 import com.teraenergy.illegalparking.controller.ExtendsController;
 import com.teraenergy.illegalparking.exception.TeraException;
+import com.teraenergy.illegalparking.lib.strategy.page.PageStrategy;
 import com.teraenergy.illegalparking.model.dto.report.domain.ReceiptDto;
 import com.teraenergy.illegalparking.model.dto.report.domain.ReportDto;
 import com.teraenergy.illegalparking.model.dto.report.service.ReportDtoService;
@@ -54,16 +55,17 @@ public class ReportController extends ExtendsController {
     private final IllegalZoneService illegalZoneService;
 
     private final UserService userService;
+    private final PageStrategy pageStrategy;
 
     private String subTitle = "신고";
 
     @GetMapping(value = "/report")
-    public RedirectView report(HttpServletRequest request) {
+    public RedirectView report() {
         return new RedirectView("/report/reportList");
     }
 
     @GetMapping(value = "/reportByGovernment")
-    public RedirectView reportByGovernment(HttpServletRequest request) {
+    public RedirectView reportByGovernment() {
         return new RedirectView("/report/reportListByGovernment");
     }
 
@@ -80,56 +82,21 @@ public class ReportController extends ExtendsController {
         }
 
         String filterColumnStr = paramMap.getAsString("filterColumn");
-        ReceiptFilterColumn filterColumn;
-        if (filterColumnStr == null) {
-            filterColumn = ReceiptFilterColumn.ADDR;
-        } else {
-            filterColumn = ReceiptFilterColumn.valueOf(filterColumnStr);
-        }
+        ReceiptFilterColumn filterColumn = (filterColumnStr == null ? ReceiptFilterColumn.ADDR : ReceiptFilterColumn.valueOf(filterColumnStr));
 
-        String search = "";
-        String searchStr = paramMap.getAsString("searchStr");
-        if (searchStr != null) {
-            search = searchStr;
-        }
+        String search = paramMap.getAsString("searchStr");
+        search = ( search == null ? "" : search);
 
         Integer pageNumber = paramMap.getAsInt("pageNumber");
-        if (pageNumber == null) {
-            pageNumber = 1;
-            model.addAttribute("pageNumber", pageNumber);
-        }
+        pageNumber = ( pageNumber == null ? 1 : pageNumber );
 
         Integer pageSize = paramMap.getAsInt("pageSize");
-        if (pageSize == null) {
-            pageSize = 10;
-            model.addAttribute("pageSize", pageSize);
-        }
+        pageSize = ( pageSize == null ? 10 : pageSize );
 
         Page<ReceiptDto> pages = reportDtoService.getsFromReceipt(pageNumber, pageSize, receiptStateType, filterColumn, search);
-
-        boolean isBeginOver = false;
-        boolean isEndOver = false;
-
         int totalPages = pages.getTotalPages();
+        pageStrategy.setModelForPageTag(totalPages, pageNumber, pageSize, model);
 
-        int offsetPage = pageNumber - 1;
-
-        if (offsetPage >= (totalPages-2)) {
-            offsetPage = totalPages-2;
-        } else {
-            if (totalPages > 3) isEndOver = true;
-        }
-
-        if ( offsetPage < 1) {
-            offsetPage = 1;
-        } else {
-            if (offsetPage > 1 && totalPages > 3) isBeginOver = true;
-        }
-
-        model.addAttribute("offsetPage", offsetPage);
-        model.addAttribute("totalPages", totalPages);
-        model.addAttribute("isBeginOver", isBeginOver);
-        model.addAttribute("isEndOver", isEndOver);
         model.addAttribute("receipts", pages.getContent());
         model.addAttribute("subTitle", subTitle);
         return getPath("/receiptList");
@@ -160,56 +127,21 @@ public class ReportController extends ExtendsController {
         }
 
         String filterColumnStr = paramMap.getAsString("filterColumn");
-        ReportFilterColumn filterColumn;
-        if (filterColumnStr == null) {
-            filterColumn = ReportFilterColumn.ADDR;
-        } else {
-            filterColumn = ReportFilterColumn.valueOf(filterColumnStr);
-        }
+        ReportFilterColumn filterColumn = ( filterColumnStr == null ? ReportFilterColumn.ADDR : ReportFilterColumn.valueOf(filterColumnStr) );
 
-        String search = "";
-        String searchStr = paramMap.getAsString("searchStr");
-        if (searchStr != null) {
-            search = searchStr;
-        }
+        String search = paramMap.getAsString("searchStr");
+        search = ( search == null ? "" : search);
 
         Integer pageNumber = paramMap.getAsInt("pageNumber");
-        if (pageNumber == null) {
-            pageNumber = 1;
-            model.addAttribute("pageNumber", pageNumber);
-        }
+        pageNumber = ( pageNumber == null ? 1 : pageNumber );
 
         Integer pageSize = paramMap.getAsInt("pageSize");
-        if (pageSize == null) {
-            pageSize = 10;
-            model.addAttribute("pageSize", pageSize);
-        }
+        pageSize = ( pageSize == null ? 10 : pageSize );
 
         Page<ReportDto> pages = reportDtoService.getsFromReport(pageNumber, pageSize, reportStateType, filterColumn, search, zoneSeqs);
-
-        boolean isBeginOver = false;
-        boolean isEndOver = false;
-
         int totalPages = pages.getTotalPages();
+        pageStrategy.setModelForPageTag(totalPages, pageNumber, pageSize, model);
 
-        int offsetPage = pageNumber - 1;
-
-        if (offsetPage >= (totalPages-2)) {
-            offsetPage = totalPages-2;
-        } else {
-            if (totalPages > 3) isEndOver = true;
-        }
-
-        if ( offsetPage < 1) {
-            offsetPage = 1;
-        } else {
-            if (offsetPage > 1 && totalPages > 3) isBeginOver = true;
-        }
-
-        model.addAttribute("offsetPage", offsetPage);
-        model.addAttribute("totalPages", totalPages);
-        model.addAttribute("isBeginOver", isBeginOver);
-        model.addAttribute("isEndOver", isEndOver);
         model.addAttribute("reports", pages.getContent());
         model.addAttribute("subTitle", subTitle);
         return getPath("/reportList");

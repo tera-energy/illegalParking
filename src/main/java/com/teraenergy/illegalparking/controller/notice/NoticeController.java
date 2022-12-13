@@ -2,6 +2,7 @@ package com.teraenergy.illegalparking.controller.notice;
 
 import com.teraenergy.illegalparking.controller.ExtendsController;
 import com.teraenergy.illegalparking.exception.TeraException;
+import com.teraenergy.illegalparking.lib.strategy.page.PageStrategy;
 import com.teraenergy.illegalparking.model.entity.notice.domain.Notice;
 import com.teraenergy.illegalparking.model.entity.notice.enums.NoticeFilterColumn;
 import com.teraenergy.illegalparking.model.entity.notice.service.NoticeService;
@@ -29,9 +30,11 @@ import javax.servlet.http.HttpServletRequest;
 public class NoticeController extends ExtendsController {
 
     private final NoticeService noticeService;
+    private final PageStrategy pageStrategy;
 
     private String subTitle = "공지사항";
     private String defaultPathName = "notice";
+
 
     @GetMapping("/notice")
     public RedirectView notice() {
@@ -48,7 +51,6 @@ public class NoticeController extends ExtendsController {
         Integer pageNumber = paramMap.getAsInt("pageNumber");
         if (pageNumber == null) {
             pageNumber = 1;
-            model.addAttribute("pageNumber", pageNumber);
         }
 
         String filterColumnStr = paramMap.getAsString("filterColumn");
@@ -79,33 +81,12 @@ public class NoticeController extends ExtendsController {
         }
 
         Page<Notice> pages = noticeService.gets(pageNumber, pageSize, filterColumn, search);
-
-        boolean isBeginOver = false;
-        boolean isEndOver = false;
-
         int totalPages = pages.getTotalPages();
+        pageStrategy.setModelForPageTag(totalPages, pageNumber, pageSize, model);
 
-        int offsetPage = pageNumber - 1;
-
-        if (offsetPage >= (totalPages - 2)) {
-            offsetPage = totalPages - 2;
-        } else {
-            if (totalPages > 3) isEndOver = true;
-        }
-
-        if (offsetPage < 1) {
-            offsetPage = 1;
-        } else {
-            if (offsetPage > 1 && totalPages > 3) isBeginOver = true;
-        }
-
-        model.addAttribute("offsetPage", offsetPage);
-        model.addAttribute("totalPages", totalPages);
-        model.addAttribute("isBeginOver", isBeginOver);
-        model.addAttribute("isEndOver", isEndOver);
+        model.addAttribute("defaultPathName", defaultPathName);
         model.addAttribute("notices", pages.getContent());
         model.addAttribute("subTitle", subTitle);
-        model.addAttribute("defaultPathName", defaultPathName);
         return getPath("/noticeList");
     }
 

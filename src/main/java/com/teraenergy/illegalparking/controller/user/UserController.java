@@ -2,6 +2,7 @@ package com.teraenergy.illegalparking.controller.user;
 
 import com.teraenergy.illegalparking.controller.ExtendsController;
 import com.teraenergy.illegalparking.exception.TeraException;
+import com.teraenergy.illegalparking.lib.strategy.page.PageStrategy;
 import com.teraenergy.illegalparking.model.dto.user.domain.UserGovernmentDto;
 import com.teraenergy.illegalparking.model.dto.user.enums.UserGovernmentFilterColumn;
 import com.teraenergy.illegalparking.model.dto.user.service.UserGovernmentDtoService;
@@ -32,6 +33,8 @@ public class UserController extends ExtendsController {
 
     private final UserGovernmentDtoService userGovernmentDtoService;
 
+    private final PageStrategy pageStrategy;
+
     private String subTitle = "사용자";
 
     @GetMapping("/user/userList")
@@ -53,13 +56,11 @@ public class UserController extends ExtendsController {
         Integer pageNumber = paramMap.getAsInt("pageNumber");
         if (pageNumber == null) {
             pageNumber = 1;
-            model.addAttribute("pageNumber", pageNumber);
         }
 
         Integer pageSize = paramMap.getAsInt("pageSize");
         if (pageSize == null) {
             pageSize = 10;
-            model.addAttribute("pageSize", pageSize);
         }
 
         String search = "";
@@ -76,27 +77,8 @@ public class UserController extends ExtendsController {
         Page<UserGovernmentDto> pages = userGovernmentDtoService.gets(pageNumber, pageSize, filterColumn, search);
 
         int totalPages = pages.getTotalPages();
-        boolean isBeginOver = false;
-        boolean isEndOver = false;
+        pageStrategy.setModelForPageTag(totalPages, pageNumber, pageSize, model);
 
-        int offsetPage = pageNumber - 1;
-
-        if (offsetPage >= (totalPages-2)) {
-            offsetPage = totalPages-2;
-        } else {
-            if (totalPages > 3) isEndOver = true;
-        }
-
-        if ( offsetPage < 1) {
-            offsetPage = 1;
-        } else {
-            if (offsetPage > 1 && totalPages > 3) isBeginOver = true;
-        }
-
-        model.addAttribute("offsetPage", offsetPage);
-        model.addAttribute("totalPages", totalPages);
-        model.addAttribute("isBeginOver", isBeginOver);
-        model.addAttribute("isEndOver", isEndOver);
         model.addAttribute("userGovernmentDtos", pages.getContent());
         model.addAttribute("subTitle", subTitle);
         return getPath("/userList");

@@ -25,7 +25,7 @@ public class ReportDetailDto {
     String carNum;                  // 차량 번호
     Integer overlapCount;           // 중복 횟수
     LocalDateTime regDt;            // 신고 접수 일자
-    String GovernmentOfficeName;    // 신고 기관 ( 처리 기관 )
+    String governmentOfficeName;    // 신고 기관 ( 처리 기관 )
     String addr;                    // 위치
     String note;                    // 처리 결과 내용
     ReportStateType reportStateType;      // 신고 접수
