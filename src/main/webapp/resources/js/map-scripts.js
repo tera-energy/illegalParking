@@ -689,13 +689,12 @@ $.changeOptionStroke = function (polygon) {
             "strokeWeight": 2,
         });
 
-        if ($.beforeClickPolygon) {
-            if(JSON.stringify(polygon.getPath()) !== JSON.stringify($.beforeClickPolygon.getPath())) {
-                $.beforeClickPolygon.setOptions({
-                    "strokeWeight": 0,
-                });
-            }
+        if($.beforeClickPolygon && (JSON.stringify(polygon.getPath()) !== JSON.stringify($.beforeClickPolygon.getPath()))) {
+            $.beforeClickPolygon.setOptions({
+                "strokeWeight": 0,
+            });
         }
+
         $.beforeClickPolygon = polygon;
     } else if ($.beforeClickPolygon) {
         $.beforeClickPolygon.setOptions({
