@@ -82,18 +82,22 @@
 		<script src="<%=contextPath%>/resources/js/area/areaSet-scripts.js"></script>
 		<script type="text/javascript">
             // 구역 Event Time 적용시간 켜기 / 끄기 함수
-            function setTime(_this) {
-                let id = _this.id.substring(4).toLowerCase();
-                if ($('#' + _this.id).is(':checked')) {
-                    $('#' + id + 'StartTimeHour').attr('disabled', false);
-                    $('#' + id + 'StartTimeMinute').attr('disabled', false);
-                    $('#' + id + 'EndTimeHour').attr('disabled', false);
-                    $('#' + id + 'EndTimeMinute').attr('disabled', false);
-                } else {
-                    $('#' + id + 'StartTimeHour').attr('disabled', true);
-                    $('#' + id + 'StartTimeMinute').attr('disabled', true);
-                    $('#' + id + 'EndTimeHour').attr('disabled', true);
-                    $('#' + id + 'EndTimeMinute').attr('disabled', true);
+            function setTimeSelectDisabled(_this) {
+                const usedType = _this.id.substring(4).toLowerCase();
+                const $timeTags = [
+                    $('#' + usedType + 'StartTimeHour'),
+                    $('#' + usedType + 'StartTimeMinute'),
+                    $('#' + usedType + 'EndTimeHour'),
+                    $('#' + usedType + 'EndTimeMinute')
+                ];
+
+                for (const $timeTag of $timeTags) {
+                  if ($('#' + _this.id).is(':checked')) {
+					  $timeTag.attr('disabled', false);
+                  }
+                  else {
+					  $timeTag.attr('disabled', true);
+                  }
                 }
             }
 
@@ -180,12 +184,12 @@
                     await $.initializePolygon((await $.getDongCodesBounds($.drawingMap)).codes);
                 });
 
-                $('#usedFirst').change(function () {
-                    setTime(this);
+                $('#usedFirst').on('change', function () {
+					setTimeSelectDisabled(this);
                 });
 
-                $('#usedSecond').change(function () {
-                    setTime(this);
+                $('#usedSecond').on('change', function () {
+					setTimeSelectDisabled(this);
                 });
 
                 // 구역 추가 버튼 이벤트
@@ -255,7 +259,7 @@
                 	}
                 });
 
-				$btnCancel.on('click',function () {
+				$btnCancel.click(function () {
 					if ($.isModifyArea) {
 						$.undoManager();
 					} else {

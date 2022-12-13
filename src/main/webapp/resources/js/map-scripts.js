@@ -187,51 +187,46 @@ function setImgOrigin(pmType) {
 }
 
 // 구역 Event Time 초기화 함수
-function initializeEventTime(first, second) {
+function initializeEventTime(timeObj) {
     const firstStartTimeHour = '12';
     const firstEndTimeHour = '14';
     const secondStartTimeHour = '20';
     const secondEndTimeHour = '08';
-    if (first) {
-        $('#firstStartTimeHour').val(firstStartTimeHour).prop('selected', true);
-        $('#firstStartTimeMinute').val('00').prop('selected', true);
 
-        $('#firstEndTimeHour').val(firstEndTimeHour).prop('selected', true);
-        $('#firstEndTimeMinute').val('00').prop('selected', true);
-    }
-    if (second) {
-        $('#secondStartTimeHour').val(secondStartTimeHour).prop('selected', true);
-        $('#secondStartTimeMinute').val('00').prop('selected', true);
+    const usedTypeArr = [
+        {
+            'usedType' : 'first',
+            'used' : timeObj.usedFirst,
+            'startTime' : timeObj.firstStartTime,
+            'endTime' : timeObj.firstEndTime,
+            'startTimeHour': firstStartTimeHour,
+            'endTimeHour': firstEndTimeHour
+        },
+        {
+            'usedType' : 'second',
+            'used' : timeObj.usedSecond,
+            'startTime' : timeObj.secondStartTime,
+            'endTime' : timeObj.secondEndTime,
+            'startTimeHour': secondStartTimeHour,
+            'endTimeHour': secondEndTimeHour
+        }
+    ]
 
-        $('#secondEndTimeHour').val(secondEndTimeHour).prop('selected', true);
-        $('#secondEndTimeMinute').val('00').prop('selected', true);
-    }
-}
+    for(const data of usedTypeArr) {
+        let startTime = '';
+        let endTime = '';
+        if (data.used) {
+            startTime = `${data.startTimeHour}:00`.split(':');
+            endTime = `${data.endTimeHour}:00`.split(':');
+        } else {
+            startTime = data.startTime.split(':');
+            endTime = data.endTime.split(':');
+        }
 
-// 구역 Event Time 시간 설정 함수
-function setEventTime(timeObj) {
-    const first = timeObj.usedFirst;
-    const second = timeObj.usedSecond;
-    if (first === true || second === true) {
-        initializeEventTime(first, second);
-    }
-    if (first === false) {
-        let firstStartTime = timeObj.firstStartTime.split(':');
-        let firstEndTime = timeObj.firstEndTime.split(':');
-        $('#firstStartTimeHour').val(firstStartTime[0]).prop('selected', true);
-        $('#firstStartTimeMinute').val(firstStartTime[1]).prop('selected', true);
-
-        $('#firstEndTimeHour').val(firstEndTime[0]).prop('selected', true);
-        $('#firstEndTimeMinute').val(firstEndTime[1]).prop('selected', true);
-    }
-    if (second === false) {
-        let secondStartTime = timeObj.secondStartTime.split(':');
-        let secondEndTime = timeObj.secondEndTime.split(':');
-        $('#secondStartTimeHour').val(secondStartTime[0]).prop('selected', true);
-        $('#secondStartTimeMinute').val(secondStartTime[1]).prop('selected', true);
-
-        $('#secondEndTimeHour').val(secondEndTime[0]).prop('selected', true);
-        $('#secondEndTimeMinute').val(secondEndTime[1]).prop('selected', true);
+        $(`#${data.usedType}StartTimeHour`).val(startTime[0]).prop('selected', true);
+        $(`#${data.usedType}StartTimeMinute`).val(startTime[1]).prop('selected', true);
+        $(`#${data.usedType}EndTimeHour`).val(endTime[0]).prop('selected', true);
+        $(`#${data.usedType}EndTimeMinute`).val(endTime[1]).prop('selected', true);
     }
 }
 
@@ -257,32 +252,40 @@ function setEventHtml(data) {
         timeObj.usedSecond = true;
 
         $('input:radio[name=illegalType]').eq(0).prop('checked', true);
+
         $('#locationType option:eq(0)').prop('selected', true);
+        $("#name option").remove();
+        $.setGroupNames($locationType.val());
+
+        $('.timeSelect').attr('disabled', true);
         $usedFirst.prop('checked', false);
         $usedSecond.prop('checked', false);
-        $('.timeSelect').attr('disabled', true);
-        $locationType.trigger('change');
+
         $btnModifyEvent.text('등록');
         $btnModifyEvent.addClass('btn-primary');
         $btnModifyEvent.removeClass('btn-danger');
-        $locationType.trigger('change');
     } else {
         data.usedFirst === false ? $usedFirst.prop('checked', true) : $usedFirst.prop('checked', false);
         data.usedSecond === false ? $usedSecond.prop('checked', true) : $usedSecond.prop('checked', false);
+
+        $(`input:radio[name=illegalType]:input[value=${data.illegalType}]`).prop('checked', true);
+
+        $('#eventSeq').val(data.eventSeq);
+
+        $locationType.val(data.locationType).prop('selected', true);
+        $("#name option").remove();
+        $.setGroupNames(data.locationType);
+        $('#name').val(data.groupSeq).prop('selected', true);
+
         $usedFirst.trigger('change');
         $usedSecond.trigger('change');
-        $('#eventSeq').val(data.eventSeq);
-        $('input:radio[name=illegalType]:input[value="' + data.illegalType + '"]').prop('checked', true);
-        $.setGroupNames(data.locationType);
-        $locationType.val(data.locationType).prop('selected', true);
-        $locationType.trigger('change');
-        $('#name').val(data.groupSeq).prop('selected', true);
+
         $btnModifyEvent.text('수정');
         $btnModifyEvent.addClass('btn-danger');
         $btnModifyEvent.removeClass('btn-primary');
     }
 
-    setEventTime(timeObj);
+    initializeEventTime(timeObj);
 }
 
 
@@ -686,13 +689,12 @@ $.changeOptionStroke = function (polygon) {
             "strokeWeight": 2,
         });
 
-        if ($.beforeClickPolygon) {
-            if(JSON.stringify(polygon.getPath()) !== JSON.stringify($.beforeClickPolygon.getPath())) {
-                $.beforeClickPolygon.setOptions({
-                    "strokeWeight": 0,
-                });
-            }
+        if($.beforeClickPolygon && (JSON.stringify(polygon.getPath()) !== JSON.stringify($.beforeClickPolygon.getPath()))) {
+            $.beforeClickPolygon.setOptions({
+                "strokeWeight": 0,
+            });
         }
+
         $.beforeClickPolygon = polygon;
     } else if ($.beforeClickPolygon) {
         $.beforeClickPolygon.setOptions({
