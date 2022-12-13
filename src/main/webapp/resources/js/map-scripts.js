@@ -213,20 +213,20 @@ function initializeEventTime(timeObj) {
     ]
 
     for(const data of usedTypeArr) {
+        let startTime = '';
+        let endTime = '';
         if (data.used) {
-            $(`#${data.usedType}StartTimeHour`).val(data.startTimeHour).prop('selected', true);
-            $(`#${data.usedType}StartTimeMinute`).val('00').prop('selected', true);
-
-            $(`#${data.usedType}EndTimeHour`).val(data.endTimeHour).prop('selected', true);
-            $(`#${data.usedType}EndTimeMinute`).val('00').prop('selected', true);
+            startTime = `${data.startTimeHour}:00`.split(':');
+            endTime = `${data.endTimeHour}:00`.split(':');
         } else {
-            const startTime = data.startTime.split(':');
-            const endTime = data.endTime.split(':');
-            $(`#${data.usedType}StartTimeHour`).val(startTime[0]).prop('selected', true);
-            $(`#${data.usedType}StartTimeMinute`).val(startTime[1]).prop('selected', true);
-            $(`#${data.usedType}EndTimeHour`).val(endTime[0]).prop('selected', true);
-            $(`#${data.usedType}EndTimeMinute`).val(endTime[1]).prop('selected', true);
+            startTime = data.startTime.split(':');
+            endTime = data.endTime.split(':');
         }
+
+        $(`#${data.usedType}StartTimeHour`).val(startTime[0]).prop('selected', true);
+        $(`#${data.usedType}StartTimeMinute`).val(startTime[1]).prop('selected', true);
+        $(`#${data.usedType}EndTimeHour`).val(endTime[0]).prop('selected', true);
+        $(`#${data.usedType}EndTimeMinute`).val(endTime[1]).prop('selected', true);
     }
 }
 
