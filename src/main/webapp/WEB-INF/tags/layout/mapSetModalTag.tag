@@ -26,7 +26,7 @@
 
 		<div class="offcanvas-header">
 			<h5 class="offcanvas-title" id="offcanvasRightLabel">구역설정</h5>
-			<button type="button" class="btn-close canvasClose" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+			<button type="button" class="btn-close canvasClose" data-bs-dismiss="offcanvas" aria-label="Close" id="btnCloseCross"></button>
 		</div>
 
 		<div class="offcanvas-body">
@@ -131,10 +131,54 @@
             $.setGroupNames(locationType);
 		});
 
-		$('.canvasClose').on('click', function(){
+        // 위치 변경 이벤트
+		$('#btnCloseCross, #btnClose').on('click', function(){
 			$.SetMaxLevel($.MAP_MAX_LEVEL);
 			$.changeOptionStroke();
 		});
+
+        // 구역 이벤트 설정
+        $('#btnModifyEvent').on('click', function () {
+
+            if ($('#name').val() === null ) {
+                alert("불법주정차 그룹을 선택하세요.");
+                return;
+            }
+
+            if (confirm("설정하시겠습니까?")) {
+                let form = $('#formAreaSetting').serializeObject();
+
+                form['usedFirst'] = !$('#usedFirst').is(':checked');
+                form['usedSecond'] = !$('#usedSecond').is(':checked');
+                form['firstStartTime'] = $('#firstStartTimeHour').val() + ':' + $('#firstStartTimeMinute').val();
+                form['firstEndTime'] = $('#firstEndTimeHour').val() + ':' + $('#firstEndTimeMinute').val();
+                form['secondStartTime'] = $('#secondStartTimeHour').val() + ':' + $('#secondStartTimeMinute').val();
+                form['secondEndTime'] = $('#secondEndTimeHour').val() + ':' + $('#secondEndTimeMinute').val();
+
+                let result = $.JJAjaxAsync({
+                    url: _contextPath + '/event/addAndModify',
+                    data: form
+                });
+
+                if (result.success) {
+                    $.beforeClickPolygon = undefined;
+                    $.clickedPolygon.setOptions({
+                        strokeWeight: 0,
+                    });
+                    $.clickedPolygon.type = form['illegalType'];
+                    $.SetMaxLevel($.MAP_MAX_LEVEL);
+                    $.removePolygonOnMap($.clickedPolygon);
+                    alert("설정되었습니다.");
+                    setTimeout(function (){
+                        $.addPolygonOnMap($.clickedPolygon, $.drawingMap);
+                        $('#areaSettingModal').offcanvas('hide');
+                    }, 300);
+
+                } else {
+                    alert(result.msg);
+                }
+            }
+        });
 
 		$(document).keydown(function(event) {
 			if ( event.keyCode === 27 || event.which === 27 ) {

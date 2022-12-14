@@ -2,6 +2,8 @@ package com.teraenergy.illegalparking.lib.strategy.filter;
 
 import com.teraenergy.illegalparking.util.CHashMap;
 
+import java.lang.reflect.InvocationTargetException;
+
 /**
  * Date : 2022-12-12
  * Author : young
@@ -11,7 +13,7 @@ import com.teraenergy.illegalparking.util.CHashMap;
  */
 public interface FilterStrategy {
 
-    Object getFilterColumn(CHashMap paramMap, Object obj);
+    Object getFilterColumn(CHashMap paramMap, Class cls)throws NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException;
 
     Object getSearch(CHashMap paramMap);
 
