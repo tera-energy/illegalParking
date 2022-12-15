@@ -178,7 +178,8 @@ $.displayPolygon = function (polygon_) {
 }
 
 $.initializePolygon = function (codes) {
-    let searchIllegalType = $('input:radio[name=searchIllegalType]:checked').val();
+    // let searchIllegalType = $('input:radio[name=searchIllegalType]:checked').val();
+    let searchIllegalType = '';
     let select;
     if (searchIllegalType === '') {
         select = SELECT_DONG;
@@ -282,17 +283,14 @@ $.initializeKakao = function () {
         target: $.drawingMap,
         event: 'rightclick',
         func: function (mouseEvent) {
-            let searchIllegalType = $('input:radio[name=searchIllegalType]:checked').val();
-            if (searchIllegalType === '') {
-                if ($.isModifyArea) {
-                    $.undoManager();
-                } else {
-                    // 그리기 중이면 그리기를 취소합니다
-                    $.cancelDrawing();
-                    // $.removePolygonOfManager();
-                }
-                // $.initBtnState();
+            if ($.isModifyArea) {
+                $.undoManager();
+            } else {
+                // 그리기 중이면 그리기를 취소합니다
+                $.cancelDrawing();
+                // $.removePolygonOfManager();
             }
+            // $.initBtnState();
         }
     });
 
@@ -301,10 +299,9 @@ $.initializeKakao = function () {
         target: $.drawingMap,
         event: 'dblclick',
         func: function (mouseEvent) {
-            let searchIllegalType = $('input:radio[name=searchIllegalType]:checked').val();
-            if (searchIllegalType === '' && !$.isModifyArea) {
-                $('#btnAddOverlay').hide();
-                $('#btnModifyOverlay').hide();
+            if (!$.isModifyArea) {
+                $('#btnAddArea').hide();
+                $('#btnModifyArea').hide();
                 $('#btnSet').show();
                 $('#btnModify').hide();
                 $('#btnCancel').show();

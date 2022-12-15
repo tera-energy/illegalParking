@@ -40,12 +40,15 @@
 							<div class="row mt-2 ms-2 p-0">
 								<div class="col-6 mt-2 align-middle">
 									<div id="searchIllegalTypeWrap">
+										<input type="hidden" name="searchIllegalType" id="type_all" value="">
+										<%--
 										<input class="form-check-input" type="radio" name="searchIllegalType" id="type_all" value="" checked>
 										<label class="form-check-label" for="type_all">전체</label>
 										<c:forEach items="${IllegalType.values()}" var="type">
 											<input class="form-check-input" type="radio" name="searchIllegalType" value="${type}" id="type_${type}">
 											<label class="form-check-label" for="type_${type}">${type.value}</label>
 										</c:forEach>
+										--%>
 									</div>
 								</div>
 								<div class="col-6 d-flex justify-content-end">
@@ -83,27 +86,9 @@
 		<script src="<%=contextPath%>/resources/js/map-scripts.js"></script>
 		<script src="<%=contextPath%>/resources/js/area/areaSet-scripts.js"></script>
 		<script type="text/javascript">
-            // 구역 Event Time 적용시간 켜기 / 끄기 함수
-            function setTimeSelectDisabled(_this) {
-                const usedType = _this.id.substring(4).toLowerCase();
-                const $timeTags = [
-                    $('#' + usedType + 'StartTimeHour'),
-                    $('#' + usedType + 'StartTimeMinute'),
-                    $('#' + usedType + 'EndTimeHour'),
-                    $('#' + usedType + 'EndTimeMinute')
-                ];
-
-                for (const $timeTag of $timeTags) {
-                    if ($('#' + _this.id).is(':checked')) {
-                        $timeTag.attr('disabled', false);
-                    } else {
-                        $timeTag.attr('disabled', true);
-                    }
-                }
-            }
 
             //폴리곤의 중심좌표를 구하고 그 좌표로 동 코드 가져오기
-            $.getCodeByCenterPointsOfPolygon = async function(points) {
+            async function getCodeByCenterPointsOfPolygon(points) {
                 let centerPoints = $.centroid(points);
                 return await $.async_coordinatesToDongCodeKakaoApi(centerPoints.x, centerPoints.y);
             }
@@ -114,6 +99,7 @@
                 const $btnSet = $('#btnSet');
                 const $btnModify = $('#btnModify');
                 const $btnCancel = $('#btnCancel');
+                const $eventModal = $('#areaSettingModal');
 
                 // kakao 초기화
                 $.initializeKakao();
@@ -162,40 +148,34 @@
                 };
 
                 // 불법주정차 구역 선택 이벤트 설정
-                $('input:radio[name=searchIllegalType]').on('change', async function () {
-                    if ($.getManagerPolygonsLength() > 0) {
-                        if (confirm("저장하지 않은 구역은 삭제됩니다. \n검색하시겠습니까?")) {
-                            $.removePolygonOfManager();
-                        } else {
-                            $('#type_all').prop('checked', true);
-                            return false;
-                        }
-                    }
+                // $('input:radio[name=searchIllegalType]').on('change', async function () {
+                //     if ($.getManagerPolygonsLength() > 0) {
+                //         if (confirm("저장하지 않은 구역은 삭제됩니다. \n검색하시겠습니까?")) {
+                //             $.removePolygonOfManager();
+                //         } else {
+                //             $('#type_all').prop('checked', true);
+                //             return false;
+                //         }
+                //     }
+				//
+                //     $.display.isShowObj($eventModal, false)['canvas'];
+                //     $.changeOptionStroke();
+                //     $.cancelDrawing();
+				//
+                //     if ($(this).val() === '') {
+                //         $.initBtnState.func($.initBtnState.init);
+                //     } else {
+                //         $btnAddArea.hide();
+                //         $btnModifyArea.hide();
+                //         $btnModify.hide();
+                //         $btnSet.hide();
+                //         $btnCancel.hide();
+                //     }
+				//
+                //     await $.initializePolygon((await $.getDongCodesBounds($.drawingMap)).codes);
+                // });
 
-                    $('#areaSettingModal').offcanvas('hide');
-                    $.changeOptionStroke();
-                    $.cancelDrawing();
 
-                    if ($(this).val() === '') {
-                        $.initBtnState.func($.initBtnState.init);
-                    } else {
-                        $btnAddArea.hide();
-                        $btnModifyArea.hide();
-                        $btnModify.hide();
-                        $btnSet.hide();
-                        $btnCancel.hide();
-                    }
-
-                    await $.initializePolygon((await $.getDongCodesBounds($.drawingMap)).codes);
-                });
-
-                $('#usedFirst').on('change', function () {
-                    setTimeSelectDisabled(this);
-                });
-
-                $('#usedSecond').on('change', function () {
-                    setTimeSelectDisabled(this);
-                });
 
                 // 구역 추가 버튼 이벤트
                 $btnAddArea.on('click', function () {
@@ -217,7 +197,6 @@
                                 alert('구역지정은 3개 이상의 좌표가 있어야합니다.')
                                 return;
                             }
-                            ;
                             polygon.code = await getCodeByCenterPointsOfPolygon(points);
 
                         }
@@ -290,16 +269,17 @@
                             $.clickedPolygon.setMap(null);
                         }
 
-                        $('#areaSettingModal').offcanvas('hide');
-                        alert("삭제되었습니다.");
-                    }
+						$.display.isShow($eventModal, false, 'canvas');
 
+						alert("삭제되었습니다.");
+                    }
                 });
 
-                $('#searchIllegalTypeWrap').hide();
-                $btnSet.hide();
-                $btnModify.hide();
-                $btnCancel.hide();
+				$.display.isShow($('#searchIllegalTypeWrap'), false);
+				$.display.isShow($btnSet, false);
+				$.display.isShow($btnModify, false);
+				$.display.isShow($btnCancel, false);
+
             });
 
 		</script>

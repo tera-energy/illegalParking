@@ -1,3 +1,13 @@
+$.display = {};
+
+$.display.isShow = function ($id, is, type) {
+    const isShow = {
+        canvas: $id.offcanvas(is ? 'show' : 'hide'),
+        default : is ? $id.show() : $id.hide(),
+    }
+    return isShow[type] ?? isShow['default'];
+}
+
 // 동기 json to json 통신
 $.JJAjaxAsync = function (opt) {
     let result = '';

@@ -186,108 +186,6 @@ function setImgOrigin(pmType) {
     return {type: type, imgSrc: imgSrc, imgSize: imageSize}
 }
 
-// 구역 Event Time 초기화 함수
-function initializeEventTime(timeObj) {
-    const firstStartTimeHour = '12';
-    const firstEndTimeHour = '14';
-    const secondStartTimeHour = '20';
-    const secondEndTimeHour = '08';
-
-    const usedTypeArr = [
-        {
-            'usedType' : 'first',
-            'used' : timeObj.usedFirst,
-            'startTime' : timeObj.firstStartTime,
-            'endTime' : timeObj.firstEndTime,
-            'startTimeHour': firstStartTimeHour,
-            'endTimeHour': firstEndTimeHour
-        },
-        {
-            'usedType' : 'second',
-            'used' : timeObj.usedSecond,
-            'startTime' : timeObj.secondStartTime,
-            'endTime' : timeObj.secondEndTime,
-            'startTimeHour': secondStartTimeHour,
-            'endTimeHour': secondEndTimeHour
-        }
-    ]
-
-    for(const data of usedTypeArr) {
-        let startTime = '';
-        let endTime = '';
-        if (data.used) {
-            startTime = `${data.startTimeHour}:00`.split(':');
-            endTime = `${data.endTimeHour}:00`.split(':');
-        } else {
-            startTime = data.startTime.split(':');
-            endTime = data.endTime.split(':');
-        }
-
-        $(`#${data.usedType}StartTimeHour`).val(startTime[0]).prop('selected', true);
-        $(`#${data.usedType}StartTimeMinute`).val(startTime[1]).prop('selected', true);
-        $(`#${data.usedType}EndTimeHour`).val(endTime[0]).prop('selected', true);
-        $(`#${data.usedType}EndTimeMinute`).val(endTime[1]).prop('selected', true);
-    }
-}
-
-// 구역 Event Form 설정 함수
-function setEventHtml(data) {
-    const $locationType = $('#locationType');
-    const $btnModifyEvent = $('#btnModifyEvent');
-    const $usedFirst = $('#usedFirst');
-    const $usedSecond = $('#usedSecond');
-
-    const timeObj = {
-        usedFirst: data.usedFirst,
-        usedSecond: data.usedSecond,
-        firstStartTime: data.firstStartTime,
-        firstEndTime: data.firstEndTime,
-        secondStartTime: data.secondStartTime,
-        secondEndTime: data.secondEndTime,
-    }
-
-    $('#offcanvasRightLabel').text(data.zoneSeq + '번 구역설정');
-    if (data.eventSeq === null) {
-        timeObj.usedFirst = true;
-        timeObj.usedSecond = true;
-
-        $('input:radio[name=illegalType]').eq(0).prop('checked', true);
-
-        $('#locationType option:eq(0)').prop('selected', true);
-        $("#name option").remove();
-        $.setGroupNames($locationType.val());
-
-        $('.timeSelect').attr('disabled', true);
-        $usedFirst.prop('checked', false);
-        $usedSecond.prop('checked', false);
-
-        $btnModifyEvent.text('등록');
-        $btnModifyEvent.addClass('btn-primary');
-        $btnModifyEvent.removeClass('btn-danger');
-    } else {
-        data.usedFirst === false ? $usedFirst.prop('checked', true) : $usedFirst.prop('checked', false);
-        data.usedSecond === false ? $usedSecond.prop('checked', true) : $usedSecond.prop('checked', false);
-
-        $(`input:radio[name=illegalType]:input[value=${data.illegalType}]`).prop('checked', true);
-
-        $('#eventSeq').val(data.eventSeq);
-
-        $locationType.val(data.locationType).prop('selected', true);
-        $("#name option").remove();
-        $.setGroupNames(data.locationType);
-        $('#name').val(data.groupSeq).prop('selected', true);
-
-        $usedFirst.trigger('change');
-        $usedSecond.trigger('change');
-
-        $btnModifyEvent.text('수정');
-        $btnModifyEvent.addClass('btn-danger');
-        $btnModifyEvent.removeClass('btn-primary');
-    }
-
-    initializeEventTime(timeObj);
-}
-
 
 /******************************
  * 전역 함수
@@ -657,27 +555,6 @@ $.setGroupNames = function (locationType) {
         let groups = result.data;
         let html = getNamesSelectHtml(groups);
         $('#name').append(html);
-    }
-}
-
-// 폴리곤 클릭 시 모달 창 오픈
-$.showModal = function (seq, id) {
-    let result = $.JJAjaxAsync({
-        url: _contextPath + '/zone/get',
-        data: {
-            zoneSeq: seq
-        }
-    });
-
-    if (result.success) {
-        $.SetMaxLevel($.MAP_MIN_LEVEL);
-        let data = result.data;
-        $('#zoneSeq').val(data.zoneSeq);
-        setEventHtml(data);
-
-        $('#'+id).offcanvas('show');
-    } else {
-        alert(result.msg);
     }
 }
 
