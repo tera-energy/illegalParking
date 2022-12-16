@@ -168,21 +168,28 @@
         );
     }
 
+    function groupNameRemoveAndSet(locationType){
+        $("#name option").remove();
+        $.setGroupNames(locationType);
+    }
+
+    function btnSetControl($id, is) {
+        $id.text(is ? '수정' : '등록');
+        $id.addClass(is ? 'btn-danger' : 'btn-primary');
+        $id.removeClass(is ? 'btn-primary' : 'btn-danger');
+    }
 
     function initializeEventForm() {
         $('input:radio[name=illegalType]').eq(0).prop('checked', true);
 
         $('#locationType option:eq(0)').prop('selected', true);
-        $("#name option").remove();
-        $.setGroupNames($locationType.val());
+        groupNameRemoveAndSet($locationType.val());
 
         $('.timeSelect').attr('disabled', true);
         $usedFirst.prop('checked', false);
         $usedSecond.prop('checked', false);
 
-        $btnSetEvent.text('등록');
-        $btnSetEvent.addClass('btn-primary');
-        $btnSetEvent.removeClass('btn-danger');
+        btnSetControl($btnSetEvent, false);
     }
 
     function setEventForm(data) {
@@ -194,17 +201,15 @@
         $('#eventSeq').val(data.eventSeq);
 
         $locationType.val(data.locationType).prop('selected', true);
-        $("#name option").remove();
-        $.setGroupNames(data.locationType);
+        groupNameRemoveAndSet(data.locationType);
         $('#name').val(data.groupSeq).prop('selected', true);
 
-        $usedFirst.trigger('change');
-        $usedSecond.trigger('change');
+        setTimeSelectDisabled($usedFirst[0]);
+        setTimeSelectDisabled($usedSecond[0]);
 
-        $btnSetEvent.text('수정');
-        $btnSetEvent.addClass('btn-danger');
-        $btnSetEvent.removeClass('btn-primary');
+        btnSetControl($btnSetEvent, true);
     }
+
 
     // 구역 Event Form 설정 함수
     function setEventHtml(data) {
@@ -219,10 +224,10 @@
 
         initializeEventTime(timeObj);
 
-        if (data.eventSeq === null) {
-            return initializeEventForm();
-        } else {
+        if (data.eventSeq !== null) {
             return setEventForm(data);
+        } else {
+            return initializeEventForm();
         }
     }
 
@@ -250,9 +255,8 @@
     $(function () {
         // 위치 변경 이벤트
         $locationType.on('change', function () {
-            $("#name option").remove();
             let locationType = $(this).val();
-            $.setGroupNames(locationType);
+            groupNameRemoveAndSet(locationType);
         });
 
         // x 버튼, 취소 버튼 이벤트 설정
@@ -304,11 +308,11 @@
             }
         });
 
-        $('#usedFirst').on('change', function () {
+        $usedFirst.on('change', function () {
             setTimeSelectDisabled(this);
         });
 
-        $('#usedSecond').on('change', function () {
+        $usedSecond.on('change', function () {
             setTimeSelectDisabled(this);
         });
 
