@@ -59,7 +59,8 @@ $(function () {
             event: 'click',
             func: function (mouseEvent) {
                 if($.beforeClickPolygon) {
-                    $('#areaViewModal').offcanvas('hide');
+                    // $('#areaViewModal').offcanvas('hide');
+                    $.display.isShow($('#areaViewModal'), false, 'canvas');
                     $.changeOptionStroke();
                 }
                 $.initOverlay();
@@ -116,7 +117,8 @@ $(function () {
             target: map,
             event: 'dragend',
             func: function () {
-                $('#areaViewModal').offcanvas('hide');
+                // $('#areaViewModal').offcanvas('hide');
+                // $.display.isShow($('#areaViewModal'), false, 'canvas');
                 $.initOverlay();
             }
         });
@@ -232,8 +234,12 @@ $(function () {
             searchIllegalType = '';
         }
 
-        let select = SELECT_TYPE_AND_DONG;
-        if (searchIllegalType === '') select = SELECT_DONG;
+        let select;
+        if (searchIllegalType === '') {
+            select = SELECT_DONG
+        } else {
+            select = SELECT_TYPE_AND_DONG
+        }
         //기존에 조회된 법정동 코드와 새로운 코드가 다르다면 db 조회
 
         let result = $.JJAjaxAsync({

@@ -1,11 +1,32 @@
 $.display = {};
 
+$.isShow = function (id, is, type) {
+
+};
+
+$.display.type = {
+    canvas : 'canvas',
+    etc: 'etc'
+};
+
 $.display.isShow = function ($id, is, type) {
-    const isShow = {
-        canvas: $id.offcanvas(is ? 'show' : 'hide'),
-        default : is ? $id.show() : $id.hide(),
+    switch (type) {
+        case $.display.type.canvas:
+            $id.offcanvas(is === true ? "show" : "hide");
+            break;
+        case $.display.type.etc:
+
+            break;
+        default:
+            is === true ? $id.show() : $id.hide();
+            break;
     }
-    return isShow[type] ?? isShow['default'];
+
+    // const show = new Map()
+    //     .set($.display.type.canvas, $id.offcanvas(is ? 'show' : 'hide'))
+    //     .set($.display.type.etc, is ? $id.show() : $id.hide());
+    //
+    // return show.get(type) || is ? $id.show() : $id.hide();
 }
 
 // 동기 json to json 통신

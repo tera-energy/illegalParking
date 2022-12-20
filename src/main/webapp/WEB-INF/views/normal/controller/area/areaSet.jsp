@@ -38,18 +38,18 @@
 					<div class="card">
 						<div class="card-title">
 							<div class="row mt-2 ms-2 p-0">
-								<div class="col-6 mt-2 align-middle">
-									<div id="searchIllegalTypeWrap">
-										<input type="hidden" name="searchIllegalType" id="type_all" value="">
-										<%--
-										<input class="form-check-input" type="radio" name="searchIllegalType" id="type_all" value="" checked>
-										<label class="form-check-label" for="type_all">전체</label>
-										<c:forEach items="${IllegalType.values()}" var="type">
-											<input class="form-check-input" type="radio" name="searchIllegalType" value="${type}" id="type_${type}">
-											<label class="form-check-label" for="type_${type}">${type.value}</label>
-										</c:forEach>
-										--%>
-									</div>
+								<div class="col-6">
+									<button type="button" class="btn btn-sm btn-secondary" data-bs-toggle="tooltip" data-bs-html="true" data-bs-placement="right" title="">
+										<i class="fas fa-question-circle"></i> 도움말
+									</button>
+									<%--
+									<input class="form-check-input" type="radio" name="searchIllegalType" id="type_all" value="" checked>
+									<label class="form-check-label" for="type_all">전체</label>
+									<c:forEach items="${IllegalType.values()}" var="type">
+										<input class="form-check-input" type="radio" name="searchIllegalType" value="${type}" id="type_${type}">
+										<label class="form-check-label" for="type_${type}">${type.value}</label>
+									</c:forEach>
+									--%>
 								</div>
 								<div class="col-6 d-flex justify-content-end">
 									<div class="me-3">
@@ -94,6 +94,10 @@
             }
 
             $(function () {
+
+            	$('[data-bs-toggle="tooltip"]').tooltip();
+
+
                 const $btnAddArea = $('#btnAddArea');
                 const $btnModifyArea = $('#btnModifyArea');
                 const $btnSet = $('#btnSet');
@@ -118,29 +122,29 @@
                                 $.setOverlayType('POLYGON');
                                 $.SetMaxLevel($.MAP_MIN_LEVEL);
                                 $.isModifyArea = false;
-                                $btnSet.show();
-                                $btnCancel.show();
-                                $btnModifyArea.hide();
-                                $btnAddArea.hide();
-                                $btnModify.hide();
+                                $.display.isShow($btnSet, true);
+                                $.display.isShow($btnCancel, true);
+                                $.display.isShow($btnModifyArea, false);
+                                $.display.isShow($btnAddArea, false);
+                                $.display.isShow($btnModify, false);
                                 break;
                             case $.initBtnState.modify:
                                 $.SetMaxLevel($.MAP_MIN_LEVEL);
                                 $.isModifyArea = true;
-                                $btnSet.hide();
-                                $btnCancel.show();
-                                $btnModifyArea.hide();
-                                $btnAddArea.hide();
-                                $btnModify.show();
+                                $.display.isShow($btnSet, false);
+                                $.display.isShow($btnCancel, true);
+                                $.display.isShow($btnModifyArea, false);
+                                $.display.isShow($btnAddArea, false);
+                                $.display.isShow($btnModify, true);
                                 break;
                             case $.initBtnState.init:
                                 $.SetMaxLevel($.MAP_MAX_LEVEL);
                                 $.isModifyArea = false;
-                                $btnSet.hide();
-                                $btnCancel.hide();
-                                $btnModifyArea.show();
-                                $btnAddArea.show();
-                                $btnModify.hide();
+                                $.display.isShow($btnSet, false);
+                                $.display.isShow($btnCancel, false);
+                                $.display.isShow($btnModifyArea, true);
+                                $.display.isShow($btnAddArea, true);
+                                $.display.isShow($btnModify, false);
                                 break;
                         }
 
@@ -158,7 +162,7 @@
                 //         }
                 //     }
 				//
-                //     $.display.isShowObj($eventModal, false)['canvas'];
+				//     $.display.isShow($eventModal, false, 'canvas');
                 //     $.changeOptionStroke();
                 //     $.cancelDrawing();
 				//
@@ -275,7 +279,6 @@
                     }
                 });
 
-				$.display.isShow($('#searchIllegalTypeWrap'), false);
 				$.display.isShow($btnSet, false);
 				$.display.isShow($btnModify, false);
 				$.display.isShow($btnCancel, false);

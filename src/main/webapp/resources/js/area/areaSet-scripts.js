@@ -178,20 +178,11 @@ $.displayPolygon = function (polygon_) {
 }
 
 $.initializePolygon = function (codes) {
-    // let searchIllegalType = $('input:radio[name=searchIllegalType]:checked').val();
-    let searchIllegalType = '';
-    let select;
-    if (searchIllegalType === '') {
-        select = SELECT_DONG;
-    }  else {
-        select = SELECT_TYPE_AND_DONG;
-    }
-
     let result = $.JJAjaxAsync({
         url: _contextPath + '/zone/gets',
         data: {
-            select: select,
-            illegalType: searchIllegalType,
+            select: SELECT_DONG,
+            illegalType: '',
             codes: codes,
             isSetting: true
         }
@@ -284,13 +275,11 @@ $.initializeKakao = function () {
         event: 'rightclick',
         func: function (mouseEvent) {
             if ($.isModifyArea) {
-                $.undoManager();
+                $.removePolygonOfManager();
             } else {
                 // 그리기 중이면 그리기를 취소합니다
                 $.cancelDrawing();
-                // $.removePolygonOfManager();
             }
-            // $.initBtnState();
         }
     });
 
@@ -300,11 +289,7 @@ $.initializeKakao = function () {
         event: 'dblclick',
         func: function (mouseEvent) {
             if (!$.isModifyArea) {
-                $('#btnAddArea').hide();
-                $('#btnModifyArea').hide();
-                $('#btnSet').show();
-                $('#btnModify').hide();
-                $('#btnCancel').show();
+                $.initBtnState.func($.initBtnState.set);
                 $.setOverlayType('POLYGON');
             }
         }
@@ -317,7 +302,8 @@ $.initializeKakao = function () {
         func: function (mouseEvent) {
             if ($('#areaSettingModal').hasClass('show')) {
                 $.SetMaxLevel($.MAP_MAX_LEVEL);
-                $('#areaSettingModal').offcanvas('hide');
+                $.display.isShow($('#areaSettingModal'), false, 'canvas');
+                // $('#areaSettingModal').offcanvas('hide');
             }
             if ($.beforeClickPolygon) {
                 $.changeOptionStroke();
